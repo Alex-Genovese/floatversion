@@ -13,114 +13,127 @@
 float_version_from_string ()  {
 
 	show_help () {
-		printf   "\n  floatversion --options --str 'string'"
-		printf "\n\n  Without options, shows first number value in list. All cases, returns false if none"
-		printf "\n\n  -h | --help		show help "
-		printf "\n\n  -l | --list		show list as single string"
-		printf "\n\n  -c | --col		show list as column"
-		printf "\n\n  -a | --all		show all extracted values"
-		printf "\n\n  -u | --uniq		show only the unique values"
-		printf "\n\n  -i | --item		show only given array item 0 to int, eg. -i 0"
-		printf "\n\n  -n | --num		sort by standard numbering, not versioning"
-		printf "\n\n  -x | --sufx		check for additional sem. ver. suffixes,  eg. -beta"
-		printf "\n\n  -r | --under		check for underscored suffixes,  eg. _rc1"
-		printf "\n\n  -s | --str		input string, text or list"
-		printf "\n"
-	}
+	  printf "
+  floatversion --options --input 'string'
+  Without options, shows unsorted first number value in list. 
+  All cases, returns false if none
 
-	local ShowAsCol=
-	local ShowAsList=
-	local ShowAll=
-	local ShowUniq=
-	local ShowItem=
-	local SortNum=
-	local ShowVerSufx=
-	local ShowVerUnd=
-	local InputString=
-	declare -a NumArr 
-	declare -a NumArrTemp 
-	declare -a NumArrStr 
+  -h | --help         show help 
+  -V | --version      show version
+  -s | --str          show list as single string
+  -c | --col          show list as column
+  -a | --all          show all extracted values, not just unique
+  -n | --num          sort by standard numbering, not versioning
+  -f | --full         check for additional sem. ver. suffixes,  eg. -beta
+  -i | --input        input string, text or list
+    
+"
+  }
 
-	while [[ "$1" ]] ; do
-		case "$1" in 
-			--help|-h|--version)  
-				show_help ; shift $# ;;
-			-l|--list)
-				ShowAsList=1 ; shift ;;
-			-c|--col)
-				ShowAsCol=1 ; shift ;;
-			-a|--all)
-				ShowAll=1 ; shift ;;
-			-u|--uniq)
-				ShowUniq=1 ; shift ;;
-			-i|--item)
-				ShowItem="$2" ; shift 2 ;;
-			-n|--num)
-				SortNum=1 ; shift ;;
-			-x|--sufx)
-				ShowVerSufx=1 ; shift ;;
-			-r|--under)
-				ShowVerUnd=1 ; shift ;;
-			-s|--str) 
-				InputString="$2" ; shift $# ;;
-			*) 
-				show_help ; shift $# ;;
-		esac
-	done
+  local ShowAsCol=
+  local ShowAsStr=
+  local ShowAll=
+  local SortNum=
+  local GrepFull=
+  local InputString=
+  declare -a NumArr 
+  declare -a NumArrTemp 
+  declare -a NumArrStr 
 
-	InputString="$(tr -cd '[:print:]' <<< "$InputString")" 
-	[[ ! $InputString ]] && return 1
+  while [[ "$1" ]] ; do
+  case "$1" in 
+    --help|-h)  
+    	show_help ; shift $# ; return 0 ;;
+    -V|--version)  
+    	echo "0.2" ; shift $# ; return 0 ;;
+    -s|--str)
+    	ShowAsStr=1 ; shift ;;
+    -c|--col)
+    	ShowAsCol=1 ; shift ;;
+    -a|--all)
+    	ShowAll=1 ; shift ;;
+    -n|--num)
+    	SortNum=1 ; shift ;;
+    -f|--full)
+    	GrepFull=1 ; shift ;;
+    -i|--input)
+    	InputString="$2" ; shift $# ;;
+    *) 
+		echo "# is $#  1 is $1  @ is $*"
+			printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
+			show_help ; unset ; return 1 ;;
+  esac
+  done
 
-	if [[ $ShowVerSufx ]]; then 
-		Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:alnum:]]+)?' <<< "$InputString" )"
-	elif [[ $ShowVerUnd ]]; then
-		Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([_][[:alnum:]]+)?' <<< "$InputString" )"
-	else
-	 	Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputString" )"
-	fi
+  [[ -e "$InputString" ]] && InputString="$(cat -A "$InputString")"
+  InputString="$(tr -cd '[:print:]' <<< "$InputString" | tr ';' ' ' | tr '$' ' ')" 
+  [[ ! $InputString ]] && return 1
 
-	#echo; echo "$Nums"; echo
+  echo; echo "Str:"; echo "$InputString"; echo
 
-	if [[ $ShowUniq ]]; then 
-		mapfile -t  NumArrTemp <<< "$Nums"
-		mapfile -t  NumArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )"
-	else
-		mapfile -t  NumArr <<< "$Nums"
-	fi
 
-	#declare -p NumArr ; echo
+  if [[ $GrepFull ]]; then 
+    Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputString" )"
+    printf -v Nums "%s\n" "$Nums"
+    Nums+="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([_][[:alnum:]]+)' <<< "$InputString" )"
+    printf -v Nums "%s\n" "$Nums"
+    Nums+="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([.][[:alnum:]]+)' <<< "$InputString" )"
+  else
+   Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputString" )"
+  fi
 
-	if [[ $ShowAll ]]; then echo "${NumArr[@]}"
-	
-	elif [[ $ShowUniq ]]; then
-	
-		mapfile -t  NumArrStr <<< "$(printf "%s\n" "${NumArr[@]}" | jq -Rrn '
-		# read input lines as an array
-		[inputs]
-		|sort_by(
-		  # ignore build
-		  split("+")[0]
-		  # extract version core and pre-release as arrays of numbers and strings
-		  |split("-")|(.[0]|split(".")|map(tonumber? // .)) as $version_core
-		  |(.[1:]|join("-")|split(".")|map(tonumber? // .)) as $pre_release
-		  # sort by version core
-		  |$version_core,
-		  # pre-release versions have a lower precedence than the associated normal version
-		  ($pre_release|length)==0,
-		  # sort by pre-release
-		  $pre_release
-		)
-		#extract values from an array
-		|.[]'
-		)"
-		echo "${NumArrStr[@]}"
-		printf "%s\n" "${NumArrStr[@]}"
-		
-	elif [[ $ShowItem ]]; then echo "${NumArr[$ShowItem]}"        
-	else  echo "${NumArr[0]}"
+  Nums="$(grep '[[:digit:]]' <<< "$Nums")"
+  echo "Nums: ($(grep -c '[[:digit:]]' <<< "$Nums"))"; echo "$Nums"; echo
+
+  [[ ! $Nums ]] && return 1
+
+  if [[ $ShowAll ]]; then 
+  mapfile -t  NumArr <<< "$Nums"
+  else
+  mapfile -t  NumArrTemp <<< "$Nums"
+  mapfile -t  NumArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )"
+  fi
+
+  declare -p NumArr ; echo
+
+  if [[ $ShowAll ]]; then echo "${NumArr[@]}"
+  
+  else
+  
+  mapfile -t  NumArrStr <<< "$(printf "%s\n" "${NumArr[@]}" | jq -Rrn '
+  # read input lines as an array
+  [inputs]
+  |sort_by(
+    # ignore build
+    split("+")[0]
+    # extract version core and pre-release as arrays of numbers and strings
+    |split("-")|(.[0]|split(".")|map(tonumber? // .)) as $version_core
+    |(.[1:]|join("-")|split(".")|map(tonumber? // .)) as $pre_release
+    # sort by
+    |$version_core,
+    # pre-release versions have a lower precedence than the associated normal version
+    ($pre_release|length)==0,
+    # sort by 
+    $pre_release
+  )
+  #extract values from an array
+  |.[]'
+  )"
+  echo "${NumArrStr[@]}"
+  echo
+  printf "%s\n" "${NumArrStr[@]}"
+  echo
+
+  #elif [[ $ShowItem ]]; then echo "${NumArr[$ShowItem]}"        
+  #else  echo "${NumArr[0]}"
 fi    
 
 }
 
 float_version_from_string "$@"
 
+
+# jq code source - https://stackoverflow.com/a/77961624/27611101
+
+# https://code.visualstudio.com/ 
+# vim:tabstop=2:shiftwidth=2:expandtab
