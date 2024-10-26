@@ -36,8 +36,9 @@ float_version_from_string ()  {
 	show_help () {
 	  printf "
   floatversion --options  --input | --gt  \"QUOTED-string\"
-  Without options, outputs the highest/latest value in list. 
-  All cases, returns false if none
+
+  Extracts point separated numbers, or semantic version numbers with optional suffixes,
+  and other common variations upon, from a given string or text list
 
   -h | --help         show help 
   -V | --version      show version
@@ -49,7 +50,13 @@ float_version_from_string ()  {
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
   -i | --input        input string, text or list (for comparisons, use -g instead)
   -g | --gt           if A is greater than B, returns true, else false (from string of two) 
-    
+
+  Without options, outputs the highest/latest value in list. 
+  All cases, returns false if none
+  
+  License: MIT  Copyright (c) Alex Genovese  
+  Further Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
+
 "
   }
 
