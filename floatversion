@@ -14,6 +14,8 @@
 # and this is noticably absent both in Debian based distros and with MacOS
 # jq code source - https://stackoverflow.com/a/77961624/27611101
 
+# http://semver.org/ versioning does not list well in file managers ...
+
 if [ -z "$(command -v bash)" ] || [ "$(echo "$BASH_VERSION" | cut -d. -f1)" -lt 5 ]; then
   echo; echo "  Sorry, you need Bash, probably 5.0 or newer to run this script."; echo
   echo "  FloatVersion has only been tested on up-to-date versions of Bash"; echo
@@ -116,6 +118,8 @@ float_version_from_string ()  {
   else
     mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )"
   fi
+
+  declare -p NumArrSorted ; echo
   
   if [[ $SortNum ]]; then
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}")"
@@ -141,7 +145,7 @@ float_version_from_string ()  {
     )"
   fi    
 
-  if [[ $ShowAsStr ]]; then
+  if [[ $ShowAsStr ]] || [[ $ShowAll ]] && [[ ! $ShowAsCol ]]; then
     printf "%s  " "${fvOutputArr[@]}"
     printf "\n"
   elif [[ $ShowAsCol ]]; then
