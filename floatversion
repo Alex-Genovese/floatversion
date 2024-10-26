@@ -80,13 +80,13 @@ float_version_from_string ()  {
       -f|--full)
         GrepFull=1 ; shift ;;
       -e|--extra)
-        GrepExtra=1 ; shift ;;
+        GrepFull=1 ; GrepExtra=1 ; shift ;;
       -i|--input)
         [[ ! $2 ]] && show_help && return 1
         InputString="$2" ; shift $# ;;
       -g|--gt)
         [[ ! $2 ]] && show_help && return 1
-        GTcompare=1
+        GTcompare=1 ; GrepExtra= 
         InputString="$2" ; shift $# ;;
       *) 
         printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
