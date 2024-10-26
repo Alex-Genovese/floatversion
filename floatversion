@@ -21,9 +21,8 @@ if [ -z "$(command -v bash)" ] || [ "$(echo "$BASH_VERSION" | cut -d. -f1)" -lt 
   echo; echo "  Sorry, you need Bash, probably 5.0 or newer to run this script."; echo
   echo "  FloatVersion has only been tested on up-to-date versions of Bash"; echo
   echo "  Certain elements require at least ver 4.2 .... "; echo
-  echo "  Your version: "; echo
-  bash --version
-  echo
+  if [ -n "$(command -v bash)" ]; then echo "  Your version: "; echo ; bash --version ; echo
+  fi
 fi
 
 # flag for dev analysis, set =1 to show algorithm output (full version only)
