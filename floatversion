@@ -27,7 +27,7 @@ if [ -z "$(command -v bash)" ] || [ "$(echo "$BASH_VERSION" | cut -d. -f1)" -lt 
 fi
 
 # flag for dev analysis, set =1 to show algorithm output (full version only)
-DevCheck=1
+DevCheck=
 
 # flag for dev analysis, set =1 to use compact version
 CompactVersion=
