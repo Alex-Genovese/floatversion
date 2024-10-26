@@ -30,7 +30,7 @@ float_version_from_string ()  {
 
 	show_help () {
 	  printf "
-  floatversion --options --input \"QUOTED-string\"
+  floatversion --options  --input | --gt  \"QUOTED-string\"
   Without options, outputs the highest/latest value in list. 
   All cases, returns false if none
 
@@ -42,7 +42,8 @@ float_version_from_string ()  {
   -A | --arr          output global array 'fvOutputArr'
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
-  -i | --input        input string, text or list
+  -i | --input        input string, text or list (for comparisons use -g )
+  -g | --gt           if A is greater than B, returns true, else false (from string of two) 
     
 "
   }
@@ -54,6 +55,7 @@ float_version_from_string ()  {
   local GrepFull=
   local InputString=
   local ArrayIsGlobal=
+  local GTcompare=
   declare -a NumArrTemp 
   declare -a NumArrSorted 
 
@@ -77,6 +79,10 @@ float_version_from_string ()  {
         GrepFull=1 ; shift ;;
       -i|--input)
         [[ ! $2 ]] && show_help && return 1
+        InputString="$2" ; shift $# ;;
+      -g|--gt)
+        [[ ! $2 ]] && show_help && return 1
+        GTcompare=1
         InputString="$2" ; shift $# ;;
       *) 
         printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
@@ -108,9 +114,18 @@ float_version_from_string ()  {
   # further sanitize
   Nums="$(grep '[[:digit:]]' <<< "$Nums")"
   echo "Nums: ($(grep -c '[[:digit:]]' <<< "$Nums"))"; echo "$Nums"; echo
-  [[ ! $Nums ]] && return 1
+  
+  if [[ ! $Nums ]]; then 
+    printf "\n\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n"  
+    show_help ; return 1
+  fi
 
   mapfile -t NumArrTemp  <<< "$(tr ' ' '\n' <<< "$Nums")"
+
+  if [[ $GTcompare ]] && [[ "${#NumArrTemp[@]}" -gt 2 ]]; then 
+    printf "\n\n  ERROR:  only two values should be supplied \n\n"  
+    show_help ; return 1
+  fi
 
   declare -p NumArrTemp ; echo
 
@@ -146,11 +161,17 @@ float_version_from_string ()  {
     )"
   fi    
 
+  declare -p fvOutputArr ; echo
+
   if [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then
     printf "%s  " "${fvOutputArr[@]}"
     printf "\n"
   elif [[ $ShowAsCol ]]; then
     printf "%s\n" "${fvOutputArr[@]}"
+  elif [[ $GTcompare ]]; then
+    if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]]; then return 0
+    else return 1
+    fi
   else
     echo "${fvOutputArr[-1]}"
   fi
