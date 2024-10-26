@@ -14,8 +14,8 @@ float_version_from_string ()  {
 
 	show_help () {
 	  printf "
-  floatversion --options --input 'string'
-  Without options, shows unsorted first number value in list. 
+  floatversion --options --input \"QUOTED-string\"
+  Without options, outputs the highest/latest value in list. 
   All cases, returns false if none
 
   -h | --help         show help 
@@ -59,9 +59,9 @@ float_version_from_string ()  {
       -f|--full)
         GrepFull=1 ; shift ;;
       -i|--input)
+        [[ ! $2 ]] && show_help && return 1
         InputString="$2" ; shift $# ;;
       *) 
-      echo "# is $#  1 is $1  @ is $*"
         printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
         show_help ; unset ; return 1 ;;
     esac
@@ -122,7 +122,7 @@ float_version_from_string ()  {
     )"
   fi    
 
-  # declare -p fvOutputArr ; echo
+  declare -p fvOutputArr ; echo
 
   if [[ $ShowAsStr ]]; then
     printf "%s  " "${fvOutputArr[@]}"
