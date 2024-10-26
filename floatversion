@@ -175,7 +175,7 @@ float_version_from_string ()  {
   elif [[ $ShowAsCol ]]; then
     printf "%s\n" "${fvOutputArr[@]}"
   elif [[ $GTcompare ]]; then
-    if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]]; then return 0
+    if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then return 0
     else return 1
     fi
   else
@@ -230,8 +230,11 @@ float_version ()  {
     )" ; fi    
   if [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then printf "%s  " "${fvOutputArr[@]}" ; printf "\n"
   elif [[ $ShowAsCol ]]; then printf "%s\n" "${fvOutputArr[@]}"
-  elif [[ $GTcompare ]]; then if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]]; then return 0 ; else return 1 ; fi
-  else  echo "${fvOutputArr[-1]}" ; fi
+  elif [[ $GTcompare ]]; then 
+    if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then return 0 
+    else return 1 ; fi
+  else  echo "${fvOutputArr[-1]}"
+  fi
 }
 
 
