@@ -97,7 +97,11 @@ float_version_from_string ()  {
   # sanitize
   [[ -e "$InputString" ]] && InputString="$(cat -A "$InputString")"
   InputString="$(tr -cd '[:print:]' <<< "$InputString" | tr ';' ' ' | tr '$' ' ')" 
-  [[ ! $InputString ]] && return 1
+
+  if [[ ! $InputString ]]; then 
+    printf "\n\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n"  
+    show_help ; return 1
+  fi
 
   echo; echo "Str:"; echo "$InputString"; echo
 
@@ -121,10 +125,7 @@ float_version_from_string ()  {
   Nums="$(grep '[[:digit:]]' <<< "$Nums")"
   echo "Nums: ($(grep -c '[[:digit:]]' <<< "$Nums"))"; echo "$Nums"; echo
   
-  if [[ ! $Nums ]]; then 
-    printf "\n\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n"  
-    show_help ; return 1
-  fi
+  [[ ! $Nums ]] && return 1
 
   mapfile -t NumArrTemp  <<< "$(tr ' ' '\n' <<< "$Nums")"
 
