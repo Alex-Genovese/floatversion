@@ -1,14 +1,27 @@
 #!/bin/bash
 
+# (c) Alex Genovese  https://github.com/TuxVinyards/floatversion
+# License: MIT
+
 # Extracts point separated numbers, or semantic version numbers with optional suffixes,
 # and other common variations upon, from a given string or text list
 
-# Sorts to unique entries in std numeric or sem. ver. 
+# Sorts to unique or listed entries, or latest, in std numeric or sem. ver. 
 
 # Outputs as space separated string, in line separated column or as selectable array
 
 # Uses'jq' for version sorting as only Gnu sort has 'sort -V'  
 # and this is noticably absent both in Debian based distros and with MacOS
+# jq code source - https://stackoverflow.com/a/77961624/27611101
+
+if [ -z "$(command -v bash)" ] || ((BASH_VERSINFO[0] < 5)); then
+  echo; echo "  Sorry, you need Bash, probably 5.0 or newer to run this script."; echo
+  echo "  FloatVersion has only been tested on up-to-date versions of Bash"; echo
+  echo "  Certain elements require at least ver 4.2 .... "; echo
+  echo "  Your version: "; echo
+  bash --version
+  echo
+fi
 
 float_version_from_string ()  {
 
@@ -141,8 +154,6 @@ float_version_from_string ()  {
 
 float_version_from_string "$@"
 
-
-# jq code source - https://stackoverflow.com/a/77961624/27611101
 
 # https://code.visualstudio.com/ 
 # vim:tabstop=2:shiftwidth=2:expandtab
