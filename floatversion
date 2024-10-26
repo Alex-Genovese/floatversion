@@ -185,6 +185,8 @@ float_version_from_string ()  {
 }
 
 ##
+
+
 float_version ()  {
   # floatversion --options  --input | --gt  \"QUOTED-string\"  
   # (c) Alex Genovese - version 1.0.0 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
@@ -217,17 +219,12 @@ float_version ()  {
   if [[ $SortNum ]]; then mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}")"
   else
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}" | jq -Rrn '
-    [inputs]
-    |sort_by(
-      split("+")[0]
+    [inputs] |sort_by( split("+")[0]
       |split("-")|(.[0]|split(".")|map(tonumber? // .)) as $version_core
       |(.[1:]|join("-")|split(".")|map(tonumber? // .)) as $pre_release
-      |$version_core,
-      ($pre_release|length)==0,
-      $pre_release
-    )
-    |.[]'
-    )" ; fi    
+      |$version_core, ($pre_release|length)==0, $pre_release
+    ) |.[]' )"
+  fi    
   if [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then printf "%s  " "${fvOutputArr[@]}" ; printf "\n"
   elif [[ $ShowAsCol ]]; then printf "%s\n" "${fvOutputArr[@]}"
   elif [[ $GTcompare ]]; then 
