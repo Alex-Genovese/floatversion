@@ -39,13 +39,14 @@ float_version_from_string ()  {
   local InputString=
   local ArrayIsGlobal=
   declare -a NumArrTemp 
+  declare -a NumArrSorted 
 
   while [[ "$1" ]] ; do
     case "$1" in 
       --help|-h)  
-        show_help ; shift $# ; return 0 ;;
+        show_help ; return 0 ;;
       -V|--version)  
-        echo "0.2" ; shift $# ; return 0 ;;
+        echo "0.2" ; return 0 ;;
       -s|--str)
         ShowAsStr=1 ; shift ;;
       -c|--col)
@@ -63,10 +64,11 @@ float_version_from_string ()  {
         InputString="$2" ; shift $# ;;
       *) 
         printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
-        show_help ; unset ; return 1 ;;
+        show_help ; return 1 ;;
     esac
   done
 
+  # sanitize
   [[ -e "$InputString" ]] && InputString="$(cat -A "$InputString")"
   InputString="$(tr -cd '[:print:]' <<< "$InputString" | tr ';' ' ' | tr '$' ' ')" 
   [[ ! $InputString ]] && return 1
@@ -87,21 +89,25 @@ float_version_from_string ()  {
    Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputString" )"
   fi
 
+  # further sanitize
   Nums="$(grep '[[:digit:]]' <<< "$Nums")"
   echo "Nums: ($(grep -c '[[:digit:]]' <<< "$Nums"))"; echo "$Nums"; echo
-
   [[ ! $Nums ]] && return 1
 
+  mapfile -t NumArrTemp  <<< "$(tr ' ' '\n' <<< "$Nums")"
+
+  declare -p NumArrTemp ; echo
+
   if [[ $ShowAll ]]; then 
-    mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort )"
+    mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort )"
   else
-    mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )"
+    mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )"
   fi
   
   if [[ $SortNum ]]; then
-    mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
+    mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}")"
   else
-    mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | jq -Rrn '
+    mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}" | jq -Rrn '
     # read input lines as an array
     [inputs]
     |sort_by(
@@ -122,10 +128,9 @@ float_version_from_string ()  {
     )"
   fi    
 
-  declare -p fvOutputArr ; echo
-
   if [[ $ShowAsStr ]]; then
     printf "%s  " "${fvOutputArr[@]}"
+    printf "\n"
   elif [[ $ShowAsCol ]]; then
     printf "%s\n" "${fvOutputArr[@]}"
   else
