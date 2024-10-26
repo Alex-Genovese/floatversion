@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Extracts point separated numbers, or semantic version numbers with optional suffixes,
-# from a given string or text list
+# and other common variations upon, from a given string or text list
 
 # Sorts to unique entries in std numeric or sem. ver. 
 
@@ -23,6 +23,7 @@ float_version_from_string ()  {
   -s | --str          show list as single string
   -c | --col          show list as column
   -a | --all          show all extracted values, not just unique
+  -A | --arr          output global array 'fvOutputArr'
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
   -i | --input        input string, text or list
@@ -36,33 +37,34 @@ float_version_from_string ()  {
   local SortNum=
   local GrepFull=
   local InputString=
-  declare -a NumArr 
+  local ArrayIsGlobal=
   declare -a NumArrTemp 
-  declare -a NumArrStr 
 
   while [[ "$1" ]] ; do
-  case "$1" in 
-    --help|-h)  
-    	show_help ; shift $# ; return 0 ;;
-    -V|--version)  
-    	echo "0.2" ; shift $# ; return 0 ;;
-    -s|--str)
-    	ShowAsStr=1 ; shift ;;
-    -c|--col)
-    	ShowAsCol=1 ; shift ;;
-    -a|--all)
-    	ShowAll=1 ; shift ;;
-    -n|--num)
-    	SortNum=1 ; shift ;;
-    -f|--full)
-    	GrepFull=1 ; shift ;;
-    -i|--input)
-    	InputString="$2" ; shift $# ;;
-    *) 
-		echo "# is $#  1 is $1  @ is $*"
-			printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
-			show_help ; unset ; return 1 ;;
-  esac
+    case "$1" in 
+      --help|-h)  
+        show_help ; shift $# ; return 0 ;;
+      -V|--version)  
+        echo "0.2" ; shift $# ; return 0 ;;
+      -s|--str)
+        ShowAsStr=1 ; shift ;;
+      -c|--col)
+        ShowAsCol=1 ; shift ;;
+      -a|--all)
+        ShowAll=1 ; shift ;;
+      -A|--arr)
+        ArrayIsGlobal=1 ; shift ;;
+      -n|--num)
+        SortNum=1 ; shift ;;
+      -f|--full)
+        GrepFull=1 ; shift ;;
+      -i|--input)
+        InputString="$2" ; shift $# ;;
+      *) 
+      echo "# is $#  1 is $1  @ is $*"
+        printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
+        show_help ; unset ; return 1 ;;
+    esac
   done
 
   [[ -e "$InputString" ]] && InputString="$(cat -A "$InputString")"
@@ -71,6 +73,9 @@ float_version_from_string ()  {
 
   echo; echo "Str:"; echo "$InputString"; echo
 
+  if [[ $ArrayIsGlobal ]]; then  declare -a fvOutputArr
+  else  declare -ga fvOutputArr 
+  fi
 
   if [[ $GrepFull ]]; then 
     Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputString" )"
@@ -88,45 +93,44 @@ float_version_from_string ()  {
   [[ ! $Nums ]] && return 1
 
   if [[ $ShowAll ]]; then 
-  mapfile -t  NumArr <<< "$Nums"
+    mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort )"
   else
-  mapfile -t  NumArrTemp <<< "$Nums"
-  mapfile -t  NumArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )"
+    mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )"
   fi
-
-  declare -p NumArr ; echo
-
-  if [[ $ShowAll ]]; then echo "${NumArr[@]}"
   
+  if [[ $SortNum ]]; then
+    mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
   else
-  
-  mapfile -t  NumArrStr <<< "$(printf "%s\n" "${NumArr[@]}" | jq -Rrn '
-  # read input lines as an array
-  [inputs]
-  |sort_by(
-    # ignore build
-    split("+")[0]
-    # extract version core and pre-release as arrays of numbers and strings
-    |split("-")|(.[0]|split(".")|map(tonumber? // .)) as $version_core
-    |(.[1:]|join("-")|split(".")|map(tonumber? // .)) as $pre_release
-    # sort by
-    |$version_core,
-    # pre-release versions have a lower precedence than the associated normal version
-    ($pre_release|length)==0,
-    # sort by 
-    $pre_release
-  )
-  #extract values from an array
-  |.[]'
-  )"
-  echo "${NumArrStr[@]}"
-  echo
-  printf "%s\n" "${NumArrStr[@]}"
-  echo
+    mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | jq -Rrn '
+    # read input lines as an array
+    [inputs]
+    |sort_by(
+      # ignore build
+      split("+")[0]
+      # extract version core and pre-release as arrays of numbers and strings
+      |split("-")|(.[0]|split(".")|map(tonumber? // .)) as $version_core
+      |(.[1:]|join("-")|split(".")|map(tonumber? // .)) as $pre_release
+      # sort by
+      |$version_core,
+      # pre-release versions have a lower precedence than the associated normal version
+      ($pre_release|length)==0,
+      # sort by 
+      $pre_release
+    )
+    #extract values from an array
+    |.[]'
+    )"
+  fi    
 
-  #elif [[ $ShowItem ]]; then echo "${NumArr[$ShowItem]}"        
-  #else  echo "${NumArr[0]}"
-fi    
+  # declare -p fvOutputArr ; echo
+
+  if [[ $ShowAsStr ]]; then
+    printf "%s  " "${fvOutputArr[@]}"
+  elif [[ $ShowAsCol ]]; then
+    printf "%s\n" "${fvOutputArr[@]}"
+  else
+    echo "${fvOutputArr[-1]}"
+  fi
 
 }
 
