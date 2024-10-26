@@ -38,11 +38,12 @@ float_version_from_string ()  {
   -V | --version      show version
   -s | --str          show list as single string
   -c | --col          show list as column
-  -a | --all          show all extracted values, not just unique
-  -A | --arr          output global array 'fvOutputArr'
+  -a | --all          show all extracted values, not just unique 
+  -A | --arr          output array 'fvOutputArr' as global 
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
-  -i | --input        input string, text or list (for comparisons use -g )
+  -e | --extra        full check plus variants eg. _beta or .beta (with '-a' may cause duplicates)
+  -i | --input        input string, text or list (for comparisons, use -g instead)
   -g | --gt           if A is greater than B, returns true, else false (from string of two) 
     
 "
@@ -53,6 +54,7 @@ float_version_from_string ()  {
   local ShowAll=
   local SortNum=
   local GrepFull=
+  local GrepExtra=
   local InputString=
   local ArrayIsGlobal=
   local GTcompare=
@@ -77,6 +79,8 @@ float_version_from_string ()  {
         SortNum=1 ; shift ;;
       -f|--full)
         GrepFull=1 ; shift ;;
+      -e|--extra)
+        GrepExtra=1 ; shift ;;
       -i|--input)
         [[ ! $2 ]] && show_help && return 1
         InputString="$2" ; shift $# ;;
@@ -103,10 +107,12 @@ float_version_from_string ()  {
 
   if [[ $GrepFull ]]; then 
     Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputString" )"
-    printf -v Nums "%s\n" "$Nums"
-    Nums+="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([_][[:alnum:]]+)' <<< "$InputString" )"
-    printf -v Nums "%s\n" "$Nums"
-    Nums+="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([.][[:alnum:]]+)' <<< "$InputString" )"
+    if [[ $GrepExtra ]]; then 
+      printf -v Nums "%s\n" "$Nums"
+      Nums+="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([_][[:alnum:]]+)' <<< "$InputString" )"
+      printf -v Nums "%s\n" "$Nums"
+      Nums+="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([.][[:alnum:]]+)' <<< "$InputString" )"
+    fi
   else
    Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputString" )"
   fi
