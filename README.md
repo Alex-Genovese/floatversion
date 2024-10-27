@@ -36,7 +36,11 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
   Without options, outputs the highest/latest value in list, with '-r' shows lowest/earliest
   All cases, returns false if none
 ```
-From this:
+
+-  Run as script or with choice embedded functions (full or compact) which optionally produce readable array 
+
+- From this:
+  
 ```
 curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | grep '11.' | wc -l
 82
@@ -59,7 +63,7 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | grep -E
 
 ```
 
-To this:
+- To this:
 
 ```
 ./floatversion -c -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" | grep -E ^'11.'
@@ -77,12 +81,13 @@ To this:
 11.11.0
 ```
 
-- Lists std numeric or sem. ver. and other common variations
+- Lists std numeric or semantic
 
 ```
 ./floatversion -s -i "$(curl -sL --fail "http://mirror-master.dragonflybsd.org/iso-images" | grep -E -o '"dfly-x86_64-.*_REL.iso.bz2"')"
 5.0.0  5.0.1  5.0.2  5.2.0  5.2.1  5.2.2  5.4.0  5.4.1  5.4.2  5.4.3  5.6.0  5.6.1  5.6.2  5.6.3  5.8.0  5.8.1  5.8.2  5.8.3  6.0.0  6.0.1  6.2.1  6.2.2  6.4.0
 ```
+- Extracts common variations
 
 ```
  ./floatversion -c -f -i "mixed-test.txt" 
