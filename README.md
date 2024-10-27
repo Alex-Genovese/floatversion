@@ -121,4 +121,12 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | grep -E
 
 - Plus choice of two functions (full or compact) which optionally produce readable arrays.
 
+```
+./floatversion -c -f -i "non-pad-test.txt" | grep -v 'beta' | grep -v 'rc'
+1.2.3-live
+1.22.3
+12.2.3
+```
+
+
 
