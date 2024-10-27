@@ -119,6 +119,6 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | grep -E
 1.1.3-beta.2  1.1.3-beta1  1.01.3-beta3  1.02.03-beta.2  1.02.3-beta.2  1.2.3-beta.2  1.02.3-beta.4  1.2.3-beta.4  1.2.3-beta1  1.2.3-beta3  1.2.3-live  1.2.03  1.2.3  1.10.3-beta3  1.22.3  12.2.3  22.3.4-beta  22.03.4-beta.1  22.3.4-beta.1  22.3.4-rc.2  22.13.4-rc.1
 ```
 
-- Choice of two functions (full or compact) which optionally produce readable arrays.
+- Plus choice of two functions (full or compact) which optionally produce readable arrays.
 
 
