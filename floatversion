@@ -31,7 +31,7 @@ if [ -z "$(command -v jq)" ]; then
 fi
 
 # flag for dev analysis, set =1 to show algorithm output (full version only)
-DevCheck=
+Verbose=
 
 # flag for dev analysis, set =1 to use compact version
 CompactVersion=
@@ -51,15 +51,15 @@ float_version_from_string ()  {
   -V | --version      show version
   -s | --str          show list as single string
   -c | --col          show list as column
-  -r | --rev          show list in reverse order
+  -r | --rev          show list in reverse order 
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
   -i | --input        input string, text or list (for comparisons, use -g instead)
   -g | --gt           if A is greater than B, returns true, else false (from string of two) 
-  -d | --dev          for dev/analysis, show algorithm output (full version only) 
+  -v | --verbose      for problem output, show algorithm sequences (full version only) 
 
-  Without options, outputs the highest/latest value in list. 
+  Without options, outputs the highest/latest value in list, with '-r' shows lowest/earliest
   All cases, returns false if none
   
   License: MIT  Copyright (c) Alex Genovese  
@@ -76,7 +76,7 @@ float_version_from_string ()  {
   local GrepFull=
   local InputString=
   local GTcompare=
-  [[ ! $DevCheck ]] && local DevCheck=
+  [[ ! $Verbose ]] && local Verbose=
   declare -a NumArrTemp 
   declare -a NumArrSorted 
   declare -ga fvOutputArr  
@@ -106,8 +106,8 @@ float_version_from_string ()  {
         [[ ! $2 ]] && show_help && return 1
         GTcompare=1
         InputString="$2" ; shift $# ;;
-      -d|--dev)
-        DevCheck=1 ; shift ;;
+      -v|--verbose)
+        Verbose=1 ; shift ;;
       *) 
         printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
         show_help ; return 1 ;;
@@ -123,7 +123,7 @@ float_version_from_string ()  {
     show_help ; return 1
   fi
 
-  [[ $DevCheck ]] && { echo; echo "Str:"; echo "$InputString"; echo ;}
+  [[ $Verbose ]] && { echo; echo "Str:"; echo "$InputString"; echo ;}
 
   if [[ $GrepFull ]]; then 
     Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputString" )"
@@ -135,7 +135,7 @@ float_version_from_string ()  {
 
   # further sanitize
   Nums="$(grep '[[:digit:]]' <<< "$Nums")"
-  [[ $DevCheck ]] && { echo "Nums: ($(grep -c '[[:digit:]]' <<< "$Nums"))"; echo "$Nums"; echo ;}
+  [[ $Verbose ]] && { echo "Nums: ($(grep -c '[[:digit:]]' <<< "$Nums"))"; echo "$Nums"; echo ;}
   
   # none found, return false
   [[ ! $Nums ]] && return 1
@@ -147,7 +147,7 @@ float_version_from_string ()  {
     show_help ; return 1
   fi
 
-  [[ $DevCheck ]] && { declare -p NumArrTemp ; echo ;}
+  [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
 
   if [[ $ShowAll ]]; then 
     mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort )"
@@ -155,7 +155,7 @@ float_version_from_string ()  {
     mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )"
   fi
 
-  [[ $DevCheck ]] && { declare -p NumArrSorted ; echo ;}
+  [[ $Verbose ]] && { declare -p NumArrSorted ; echo ;}
   
   if [[ $SortNum ]]; then
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}")"
@@ -181,16 +181,16 @@ float_version_from_string ()  {
     )"
   fi    
 
-  [[ $DevCheck ]] && { declare -p fvOutputArr ; echo; }
+  [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
 
   if [[ $ShowRev ]]; then 
     NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
     while [[ $i -ge 0  ]]; do
       NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1))
     done
-    [[ $DevCheck ]] && { declare -p NumArrTemp ; echo ;}
+    [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
-    [[ $DevCheck ]] && { declare -p fvOutputArr ; echo; }
+    [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
   fi
 
   if [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then
