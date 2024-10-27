@@ -213,10 +213,10 @@ float_version_from_string ()  {
 # compact version, suitable for embedding into other scripts, if preferred  (help and annotation removed)
 
 float_version ()  {
-  # floatversion --options  --input | --gt  \"QUOTED-string\"  
+  # floatversion --options  --input | --gt  "quoted-string"  
   # (c) Alex Genovese - version 1.0.0 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
-  local ShowAsCol= ; local ShowAsStr= ; local ShowAll= ; local SortNum= ; local GrepFull= ; local InputString=   
-  local GTcompare= ; declare -a NumArrTemp  ; declare -a NumArrSorted ; declare -ga fvOutputArr  
+  local ShowAsStr= ; local ShowAsCol= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull=  
+  local InputString= ; local GTcompare= ; declare -a NumArrTemp  ; declare -a NumArrSorted ; declare -ga fvOutputArr  
   while [[ "$1" ]] ; do
     case "$1" in 
       -s|--str)     ShowAsStr=1 ; shift ;;
