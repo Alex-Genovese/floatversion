@@ -51,12 +51,12 @@ float_version_from_string ()  {
   -V | --version      show version
   -s | --str          show list as single string
   -c | --col          show list as column
-  -r | --rev          show list in reverse order 
+  -r | --rev          show list in reverse order  
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
   -i | --input        input string, text or list (for comparisons, use -g instead)
-  -g | --gt           if A is greater than B, returns true, else false (from string of two) 
+  -g | --gt           if A is greater than B, returns true, else false (from string of two, '-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
 
   Without options, outputs the highest/latest value in list, with '-r' shows lowest/earliest
@@ -183,7 +183,8 @@ float_version_from_string ()  {
 
   [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
 
-  if [[ $ShowRev ]]; then 
+  if [[ $ShowRev ]] && [[ ! $GTcompare ]] ; then 
+    # ignore '-r' on compare or becomes overly complex, reversing the two input vars is much simpler
     NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
     while [[ $i -ge 0  ]]; do
       NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1))
@@ -199,8 +200,9 @@ float_version_from_string ()  {
   elif [[ $ShowAsCol ]]; then
     printf "%s\n" "${fvOutputArr[@]}"
   elif [[ $GTcompare ]]; then
-    if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then return 0
-    else return 1
+    if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then 
+    [[ $Verbose ]] && { echo "true"; echo ;} ; return 0
+    else [[ $Verbose ]] && { echo "false"; echo ;} ; return 1
     fi
   else
     echo "${fvOutputArr[-1]}"
@@ -249,7 +251,7 @@ float_version ()  {
       |$version_core, ($pre_release|length)==0, $pre_release
     ) |.[]' )"
   fi  
-  if [[ $ShowRev ]]; then 
+  if [[ $ShowRev ]] && [[ ! $GTcompare ]]; then 
     NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
     while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
