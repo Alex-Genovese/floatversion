@@ -77,7 +77,7 @@ To this:
 11.11.0
 ```
 
-- Handles std numeric or sem. ver. and other common variations
+- Lists std numeric or sem. ver. and other common variations
 
 ```
 ./floatversion -s -i "$(curl -sL --fail "http://mirror-master.dragonflybsd.org/iso-images" | grep -E -o '"dfly-x86_64-.*_REL.iso.bz2"')"
