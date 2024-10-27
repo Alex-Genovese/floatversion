@@ -37,7 +37,7 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
   All cases, returns false if none
 ```
 
--  Run as script or as an embedded function.
+-  Run as script or as embedded function.
 
 - From this:
   
