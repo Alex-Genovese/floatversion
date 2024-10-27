@@ -73,7 +73,6 @@ float_version_from_string ()  {
   local SortNum=
   local GrepFull=
   local InputString=
-  local ArrayIsGlobal=
   local GTcompare=
   [[ ! $DevCheck ]] && local DevCheck=
   declare -a NumArrTemp 
@@ -92,8 +91,6 @@ float_version_from_string ()  {
         ShowAsCol=1 ; shift ;;
       -a|--all)
         ShowAll=1 ; shift ;;
-      -A|--arr)
-        ArrayIsGlobal=1 ; shift ;;
       -n|--num)
         SortNum=1 ; shift ;;
       -f|--full)
