@@ -51,6 +51,7 @@ float_version_from_string ()  {
   -V | --version      show version
   -s | --str          show list as single string
   -c | --col          show list as column
+  -r | --rev          show list in reverse order
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
@@ -70,6 +71,7 @@ float_version_from_string ()  {
   local ShowAsCol=
   local ShowAsStr=
   local ShowAll=
+  local ShowRev=
   local SortNum=
   local GrepFull=
   local InputString=
@@ -89,6 +91,8 @@ float_version_from_string ()  {
         ShowAsStr=1 ; shift ;;
       -c|--col)
         ShowAsCol=1 ; shift ;;
+      -r|--rev)
+        ShowRev=1 ; shift ;;
       -a|--all)
         ShowAll=1 ; shift ;;
       -n|--num)
@@ -179,6 +183,16 @@ float_version_from_string ()  {
 
   [[ $DevCheck ]] && { declare -p fvOutputArr ; echo; }
 
+  if [[ $ShowRev ]]; then 
+    NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
+    while [[ $i -ge 0  ]]; do
+      NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1))
+    done
+    [[ $DevCheck ]] && { declare -p NumArrTemp ; echo ;}
+    mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
+    [[ $DevCheck ]] && { declare -p fvOutputArr ; echo; }
+  fi
+
   if [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then
     printf "%s  " "${fvOutputArr[@]}"
     printf "\n"
@@ -207,6 +221,7 @@ float_version ()  {
     case "$1" in 
       -s|--str)     ShowAsStr=1 ; shift ;;
       -c|--col)     ShowAsCol=1 ; shift ;;
+      -r|--rev)     ShowRev=1 ; shift ;;
       -a|--all)     ShowAll=1 ; shift ;;
       -n|--num)     SortNum=1 ; shift ;;
       -f|--full)    GrepFull=1 ; shift ;;
@@ -233,7 +248,12 @@ float_version ()  {
       |(.[1:]|join("-")|split(".")|map(tonumber? // .)) as $pre_release
       |$version_core, ($pre_release|length)==0, $pre_release
     ) |.[]' )"
-  fi    
+  fi  
+  if [[ $ShowRev ]]; then 
+    NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
+    while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
+    mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
+  fi
   if [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then printf "%s  " "${fvOutputArr[@]}" ; printf "\n"
   elif [[ $ShowAsCol ]]; then printf "%s\n" "${fvOutputArr[@]}"
   elif [[ $GTcompare ]]; then 
