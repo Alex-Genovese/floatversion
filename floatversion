@@ -55,6 +55,9 @@ float_version_from_string ()  {
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
+  -F | --filter       allows filtered output in single string, whereas post output grep requires columns,
+  -S | --starts       with -F as contains and -S as starting with, and -I as doesn't contain
+  -I | --inverse      all 3 may be used together, if required,  -F | -S | -I 'quoted-string'
   -i | --input        input string, text or list (for comparisons, use -g instead)
   -g | --gt           if A is greater than B, returns true, else false (from string of two, '-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
@@ -75,6 +78,9 @@ float_version_from_string ()  {
   local SortNum=
   local GrepFull=
   local InputString=
+  local FilterString=
+  local StartString=
+  local InverseString=
   local GTcompare=
   [[ ! $Verbose ]] && local Verbose=
   declare -a NumArrTemp 
@@ -99,6 +105,15 @@ float_version_from_string ()  {
         SortNum=1 ; shift ;;
       -f|--full)
         GrepFull=1 ; shift ;;
+      -F|--filter)
+        [[ ! $2 ]] && show_help && return 1
+        FilterString="$2" ; shift $# ;;
+      -S|--start)
+        [[ ! $2 ]] && show_help && return 1
+        StartString="$2" ; shift $# ;;
+      -I|--inverse)
+        [[ ! $2 ]] && show_help && return 1
+        InverseString="$2" ; shift $# ;;
       -i|--input)
         [[ ! $2 ]] && show_help && return 1
         InputString="$2" ; shift $# ;;
@@ -188,15 +203,36 @@ float_version_from_string ()  {
 
   [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
 
-  if [[ $ShowRev ]] && [[ ! $GTcompare ]] ; then 
-    # ignore '-r' on compare or becomes overly complex, reversing the two input vars is much simpler
-    NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
-    while [[ $i -ge 0  ]]; do
-      NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1))
-    done
-    [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
-    mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
-    [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
+  # Filters
+  if [[ ! $GTcompare ]]; then 
+    if [[ $ShowRev ]] && ; then 
+      NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
+      while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
+      [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
+      [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
+    fi
+    if [[ $FilterString ]] && ; then 
+      NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
+      while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
+      [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep "$FilterString")"
+      [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
+    fi
+    if [[ $StartString ]] && ; then 
+      NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
+      while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
+      [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -E ^"$StartString")"
+      [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
+    fi
+    if [[ $InverseString ]] && ; then 
+      NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
+      while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
+      [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -v "$InverseString")"
+      [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
+    fi
   fi
 
   if [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then
