@@ -13,7 +13,7 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
 ./floatversion -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' )" 
 12.6.0
 
-./floatversion -r -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' )" 
+./floatversion --rev -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' )" 
 3.0
 
 ./floatversion -s -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" 

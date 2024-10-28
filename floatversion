@@ -80,7 +80,7 @@ float_version_from_string ()  {
   local InputString=
   local FilterString=
   local StartString=
-  local InverseString=
+  local InverseString=   #  TODO   add to compact version
   local GTcompare=
   [[ ! $Verbose ]] && local Verbose=
   declare -a NumArrTemp 
@@ -138,7 +138,10 @@ float_version_from_string ()  {
     show_help ; return 1
   fi
 
-  [[ $Verbose ]] && { echo; echo "Str:"; echo "$InputString"; echo ;}
+  if [[ $Verbose ]]; then 
+    echo; echo "Str:"; echo "$InputString"; echo 
+    printf "\nFilters: -F \"%s\" -S \"%s\"  -I \"%s\" \n\n"  "$FilterString" "$StartString"  "$InverseString"  
+  fi
 
   if [[ $GrepFull ]]; then 
     Nums="$(grep -Eo \
