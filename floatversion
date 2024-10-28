@@ -107,13 +107,13 @@ float_version_from_string ()  {
         GrepFull=1 ; shift ;;
       -F|--filter)
         [[ ! $2 ]] && show_help && return 1
-        FilterString="$2" ; shift $# ;;
+        FilterString="$2" ; shift 2 ;;
       -S|--start)
         [[ ! $2 ]] && show_help && return 1
-        StartString="$2" ; shift $# ;;
+        StartString="$2" ; shift 2 ;;
       -I|--inverse)
         [[ ! $2 ]] && show_help && return 1
-        InverseString="$2" ; shift $# ;;
+        InverseString="$2" ; shift 2 ;;
       -i|--input)
         [[ ! $2 ]] && show_help && return 1
         InputString="$2" ; shift $# ;;
