@@ -57,7 +57,7 @@ float_version_from_string ()  {
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
   -F | --filter       allows filtered output in single string, whereas post output grep requires columns,
   -S | --starts       with -F as contains and -S as starting with, and -I as doesn't contain
-  -I | --inverse      all 3 may be used together, if required,  -F | -S | -I  \"string\"
+  -I | --inverse      multiple filters allowed  -F | -S  \"string\"  -I  \"string  string  string\"  
   -i | --input        input string, text or list (for comparisons, use -g instead)
   -g | --gt           if A is greater than B, returns true, else false (from string of two, '-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
@@ -85,6 +85,7 @@ float_version_from_string ()  {
   [[ ! $Verbose ]] && local Verbose=
   declare -a NumArrTemp 
   declare -a NumArrSorted 
+  declare -a InverseArr 
   declare -ga fvOutputArr  
   
   while [[ "$1" ]] ; do
@@ -138,9 +139,12 @@ float_version_from_string ()  {
     show_help ; return 1
   fi
 
+  [[ $InverseString ]] && mapfile -t InverseArr <<< "$(tr ' ' '\n' <<< "$InverseString")"
+
   if [[ $Verbose ]]; then 
     echo; echo "Str:"; echo "$InputString"; echo 
-    printf "\nFilters: -F \"%s\" -S \"%s\"  -I \"%s\" \n\n"  "$FilterString" "$StartString"  "$InverseString"  
+    printf "Filters: -F \"%s\" -S \"%s\"  -I \"%s\" \n\n"  "$FilterString" "$StartString"  "$InverseString" 
+    declare -p InverseArr ; echo
   fi
 
   if [[ $GrepFull ]]; then 
@@ -222,12 +226,16 @@ float_version_from_string ()  {
       mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -E ^"$StartString")"
       [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
     fi
-    if [[ $InverseString ]]; then 
-      NumArrTemp=(); i=0 
-      while [[ $i -lt "${#fvOutputArr[@]}" ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i+=1)); done
-      [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
-      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -v "$InverseString")"
-      [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
+    if [[ $InverseString ]]; then n=0
+      while [[ $n -lt "${#InverseArr[@]}" ]]; do
+         [[ $Verbose ]] && { echo "Inverse: ${InverseArr[n]}"; echo ;}
+        NumArrTemp=(); i=0 
+        while [[ $i -lt "${#fvOutputArr[@]}" ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i+=1)); done
+        [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
+        mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -v "${InverseArr[n]}")"
+        [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
+        ((n++))
+      done
     fi
     if [[ $ShowRev ]]; then 
       NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
