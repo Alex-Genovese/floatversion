@@ -74,57 +74,55 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | grep -E
 - To this:
 
 ```bash
-./floatversion -s -S 11 -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')"
+./floatversion -s -r -S 11 -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')"
 11.11.0  11.10.0  11.9.0  11.8.0  11.7.0  11.6.0  11.5.0  11.4.0  11.3.0  11.2.0  11.1.0  11.0.0
 
-./floatversion -s -S 6 -i "$(curl -sfL "http://mirror-master.dragonflybsd.org/iso-images" | grep -Eo '"dfly-x86_64-.*_REL.iso.bz2"')"
+./floatversion -s -r -S 6 -i "$(curl -sLf "http://mirror-master.dragonflybsd.org/iso-images" | grep -Eo '"dfly-x86_64-.*_REL.iso.bz2"')"
 6.4.0  6.2.2  6.2.1  6.0.1  6.0.0  
 ```
 
 - Lists std numeric or semantic
 
 ```bash
+./floatversion -s -f -i "non-pad-test.txt" 
+1.1.3-beta.2  1.1.3-beta1  1.2.0-beta.2  1.2.3-beta1  1.2.3-beta3  1.2.3-live  1.2.3-rc1  1.10.3-beta3  1.22.3  12.2.3  22.3.4-beta  22.3.4-beta.1  22.3.4-rc.2  22.13.4-rc.1  
+
 ./floatversion -f -s -I beta -i "non-pad-test.txt" 
-22.13.4-rc.1  22.3.4-rc.2  12.2.3  1.22.3  1.2.3-rc1  1.2.3-live
+1.2.3-live  1.2.3-rc1  1.22.3  12.2.3  22.3.4-rc.2  22.13.4-rc.1 
+
+./floatversion -s -i "non-pad-test.txt" 
+1.22.3  12.2.3  
 ```
 
-- Extracts common variations
+- Compare versions
 
 ```bash
- ./floatversion -c -f -i "mixed-test.txt" 
-1.1.3-beta.2
-1.1.3-beta1
-1.01.3-beta3
-1.02.03-beta.2
-1.02.3-beta.2
-1.2.3-beta.2
-1.02.3-beta.4
-1.2.3-beta.4
-1.2.3-beta1
-1.2.3-beta3
-1.2.3-live
-1.2.03
-1.2.3
-1.10.3-beta3
-1.22.3
-12.2.3
-22.3.4-beta
-22.03.4-beta.1
-22.3.4-beta.1
-22.3.4-rc.2
-22.13.4-rc.1
+Previous="$(./floatversion -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" )"
+Current="$(cat /etc/debian_version)"
+if ./floatversion -g "$Current $Previous"; then echo "Up to Date"; fi
+Up to Date
 ```
 
-```bash
-./floatversion -s -f -i "mixed-test.txt" 
-1.1.3-beta.2  1.1.3-beta1  1.01.3-beta3  1.02.03-beta.2  1.02.3-beta.2  1.2.3-beta.2  1.02.3-beta.4  1.2.3-beta.4  1.2.3-beta1  1.2.3-beta3  1.2.3-live  1.2.03  1.2.3  1.10.3-beta3  1.22.3  12.2.3  22.3.4-beta  22.03.4-beta.1  22.3.4-beta.1  22.3.4-rc.2  22.13.4-rc.1
-```
-
-- Plus choice of two functions (full or compact) which optionally produce readable arrays.
+- Show verbose algorithmics
 
 ```bash
-./floatversion -c -f -i "non-pad-test.txt" | grep -v 'beta' | grep -v 'rc'
-1.2.3-live
-1.22.3
-12.2.3
+if ./floatversion --verbose -g "$Current $Previous"; then echo "Up to Date"; fi
+
+Str:
+12.7 12.6.0
+
+Nums: (2)
+12.7
+12.6.0
+
+declare -a NumArrTemp=([0]="12.7" [1]="12.6.0")
+
+declare -a NumArrSorted=([0]="12.6.0" [1]="12.7")
+
+declare -a fvOutputArr=([0]="12.6.0" [1]="12.7")
+
+true
+
+Up to Date
+
 ```
