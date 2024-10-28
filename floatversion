@@ -126,10 +126,15 @@ float_version_from_string ()  {
   [[ $Verbose ]] && { echo; echo "Str:"; echo "$InputString"; echo ;}
 
   if [[ $GrepFull ]]; then 
-    Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputString" )"
+    Nums="$(grep -Eo \
+    '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< \
+    "$InputString" )"
     printf -v Nums "%s\n" "$Nums"
   else
-   Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputString" )"
+   # grep for all entries but then remove any with suffixes 
+   Nums="$(grep -Eo \
+   '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< \
+   "$InputString" | grep -v -E '[[:alpha:]]' )"
    printf -v Nums "%s\n" "$Nums"
   fi
 
