@@ -205,28 +205,28 @@ float_version_from_string ()  {
 
   # Filters
   if [[ ! $GTcompare ]]; then 
-    if [[ $ShowRev ]] && ; then 
+    if [[ $ShowRev ]]; then 
       NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
       while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
       [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
       mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
       [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
     fi
-    if [[ $FilterString ]] && ; then 
+    if [[ $FilterString ]]; then 
       NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
       while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
       [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
       mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep "$FilterString")"
       [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
     fi
-    if [[ $StartString ]] && ; then 
+    if [[ $StartString ]]; then 
       NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
       while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
       [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
       mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -E ^"$StartString")"
       [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
     fi
-    if [[ $InverseString ]] && ; then 
+    if [[ $InverseString ]]; then 
       NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
       while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
       [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
