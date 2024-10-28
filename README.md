@@ -23,6 +23,8 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
 
 - Outputs as true/false test, as single item, or as space or line separated list.
 
+- Filters for include, exclude, starts with, and reverse
+
 ```txt
  floatversion --options  --input | --gt  \"quoted-string\"
 
@@ -34,9 +36,12 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
+  -F | --filter       allows filtered output in single string, whereas post output grep requires columns,
+  -S | --starts       with -F as contains and -S as starting with, and -I as doesn't contain
+  -I | --inverse      all 3 may be used together, if required,  -F | -S | -I 'quoted-string'
   -i | --input        input string, text or list (for comparisons, use -g instead)
   -g | --gt           if A is greater than B, returns true, else false (from string of two, '-r' is ignored)
-  -v | --verbose      for problem output, show algorithm sequences (full version only) 
+  -v | --verbose      for problem output, show algorithm sequences (full version only)  
 
   Without options, outputs the highest/latest value in list, with '-r' shows lowest/earliest
   All cases, returns false if none
@@ -69,26 +74,18 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | grep -E
 - To this:
 
 ```bash
-./floatversion -c -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" | grep -E ^'11.'
-11.0.0
-11.1.0
-11.2.0
-11.3.0
-11.4.0
-11.5.0
-11.6.0
-11.7.0
-11.8.0
-11.9.0
-11.10.0
-11.11.0
+./floatversion -s -S 11 -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')"
+11.11.0  11.10.0  11.9.0  11.8.0  11.7.0  11.6.0  11.5.0  11.4.0  11.3.0  11.2.0  11.1.0  11.0.0
+
+./floatversion -s -S 6 -i "$(curl -sfL "http://mirror-master.dragonflybsd.org/iso-images" | grep -Eo '"dfly-x86_64-.*_REL.iso.bz2"')"
+6.4.0  6.2.2  6.2.1  6.0.1  6.0.0  
 ```
 
 - Lists std numeric or semantic
 
 ```bash
-./floatversion -s -i "$(curl -sL --fail "http://mirror-master.dragonflybsd.org/iso-images" | grep -E -o '"dfly-x86_64-.*_REL.iso.bz2"')"
-5.0.0  5.0.1  5.0.2  5.2.0  5.2.1  5.2.2  5.4.0  5.4.1  5.4.2  5.4.3  5.6.0  5.6.1  5.6.2  5.6.3  5.8.0  5.8.1  5.8.2  5.8.3  6.0.0  6.0.1  6.2.1  6.2.2  6.4.0
+./floatversion -f -s -I beta -i "non-pad-test.txt" 
+22.13.4-rc.1  22.3.4-rc.2  12.2.3  1.22.3  1.2.3-rc1  1.2.3-live
 ```
 
 - Extracts common variations
