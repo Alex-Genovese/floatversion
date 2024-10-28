@@ -85,13 +85,19 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | grep -E
 
 ```bash
 ./floatversion -s -f -i "non-pad-test.txt" 
-1.1.3-beta.2  1.1.3-beta1  1.2.0-beta.2  1.2.3-beta1  1.2.3-beta3  1.2.3-live  1.2.3-rc1  1.10.3-beta3  1.22.3  12.2.3  22.3.4-beta  22.3.4-beta.1  22.3.4-rc.2  22.13.4-rc.1  
+1.1.1  1.1.3-beta.1  1.1.3-beta.2  1.2.0-beta.2  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.2.3  1.3.1  1.3.1.2  1.10.1  1.10.3-beta.3  1.10.3  1.22.3-rc1  1.22.3  1.30.1  12.2.3  22.3.4-beta  22.3.4-beta.1  22.3.4-rc.2  22.13.4-rc.1   
 
 ./floatversion -f -s -I beta -i "non-pad-test.txt" 
-1.2.3-live  1.2.3-rc1  1.22.3  12.2.3  22.3.4-rc.2  22.13.4-rc.1 
+1.1.1  1.2.3-live  1.2.3-rc1  1.2.3  1.3.1  1.3.1.2  1.10.1  1.10.3  1.22.3-rc1  1.22.3  1.30.1  12.2.3  22.3.4-rc.2  22.13.4-rc.1
 
 ./floatversion -s -i "non-pad-test.txt" 
-1.22.3  12.2.3  
+1.1.1  1.2.3  1.3.1  1.3.1.2  1.10.1  1.10.3  1.22.3  1.30.1  12.2.3  
+
+./floatversion -s --num -i "non-pad-test.txt"
+1.10.1  1.10.3  1.1.1  1.22.3  12.2.3  1.2.3  1.30.1  1.3.1  1.3.1.2
+
+./floatversion -i "non-pad-test.txt" 
+12.2.3  
 ```
 
 - Compare versions
@@ -106,7 +112,7 @@ Up to Date
 - Show verbose algorithmics
 
 ```bash
-if ./floatversion --verbose -g "$Current $Previous"; then echo "Up to Date"; fi
+if ./floatversion --verbose --gt "$Current $Previous"; then echo "Up to Date"; fi
 
 Str:
 12.7 12.6.0
