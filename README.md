@@ -26,7 +26,7 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
 - Filters for include, exclude, starts with, and reverse
 
 ```txt
- floatversion --options  --input | --gt  \"quoted-string\"
+ floatversion --options  --input | --gt  "quoted-string"
 
   -h | --help         show help 
   -V | --version      show version
@@ -38,7 +38,7 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
   -F | --filter       allows filtered output in single string, whereas post output grep requires columns,
   -S | --starts       with -F as contains and -S as starting with, and -I as doesn't contain
-  -I | --inverse      all 3 may be used together, if required,  -F | -S | -I 'quoted-string'
+  -I | --inverse      all 3 may be used together, if required,  -F | -S | -I  "string"
   -i | --input        input string, text or list (for comparisons, use -g instead)
   -g | --gt           if A is greater than B, returns true, else false (from string of two, '-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only)  
