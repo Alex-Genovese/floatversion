@@ -1,6 +1,10 @@
-# Extracts point separated numbers, or semantic version numbers with optional suffixes
+# Extracts and sorts software release numbers
 
-- Sorts to latest version, to unique or listed entries
+Point separated, multi-point separated or semantic versioned numbers and versioned suffixes
+
+Use as standalone or embedded
+
+- Sorts to latest version, to unique or to listed entries
 
 ```bash
 curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
@@ -37,8 +41,6 @@ curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
   Without options, outputs the highest/latest value in list, with '-r' shows lowest/earliest
   All cases, returns false if none
 ```
-
-- Run as script or as embedded function.
 
 - From this:
   
