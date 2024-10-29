@@ -33,7 +33,7 @@ fi
 # flag for dev analysis, set =1 to show algorithm output (full version only)
 Verbose=
 
-# flag for dev analysis, set =1 to use compact version
+# flag for dev analysis, set =1 to use compact version when running from script  OR --compact  as $1
 CompactVersion=
 
 ##
@@ -57,9 +57,9 @@ float_version_from_string ()  {
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
   -F | --filter       allows filtered output in single string, whereas post-output grep requires columns,
   -S | --starts       with -F as contains and -S as starting with, and -D as doesn't contain,
-  -D | --delete       multiple filters allowed:   -F | -S  \"string\"   -D  \"string  string  string\"  
+  -D | --delete       multiple filters allowed:  -F | -S  \"string\"  -D  \"string  string  string\"  
   -i | --input        input string, text or list (for comparisons, use -g instead)
-  -g | --gt           if A is greater than B, returns true, else false (from string of two, '-r' is ignored)
+  -g | --gt           if A is greater than B, returns true, else false (from string of two,'-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
 
   Without options, outputs the highest/latest value in list, with '-r' shows lowest/earliest
@@ -340,9 +340,10 @@ float_version ()  {
 
 ##
 
-if [[ $CompactVersion ]]; then  float_version "$@"
-else
-  float_version_from_string "$@"
+# script call, developer option
+if [[ $1 == "--compact" ]]; then shift ; float_version "$@"
+elif [[ $CompactVersion ]]; then  float_version "$@"
+else float_version_from_string "$@"
 fi
 
 # https://code.visualstudio.com/ 
