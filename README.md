@@ -81,7 +81,7 @@ floatversion -s -r -S 6 -i "$(curl -sLf "http://mirror-master.dragonflybsd.org/i
 6.4.0  6.2.2  6.2.1  6.0.1  6.0.0  
 ```
 
-## Plus
+## With
 
 - Multiple filters
 
@@ -141,3 +141,17 @@ true
 Up to Date
 
 ```
+
+## Install
+
+Place script in a program includes folder or copy to `$PATH` eg `sudo cp floatversion /usr/bin`
+
+Embed: in Bash scripts, either the full or the compact function.  
+
+For testing inside scripts, calls to the compact function may be prefixed with `command` in order to route to a path version.
+
+### Limitations
+
+The input must resemble [semantic versioning](http://semver.org/) to some extent. The version number must be _dot separated_. Integers are ignored.
+
+Garbage in, Garbage out.  Some pre-filtering may be required.  

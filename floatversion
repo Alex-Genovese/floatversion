@@ -139,7 +139,7 @@ float_version_from_string ()  {
     show_help ; return 1
   fi
 
-  [[ $DeleteString ]] && mapfile -t DeleteArr <<< "$(tr ' ' '\n' <<< "$DeleteString")"    #  TODO   readme show this 
+  [[ $DeleteString ]] && mapfile -t DeleteArr <<< "$(tr ' ' '\n' <<< "$DeleteString")"
 
   if [[ $Verbose ]]; then 
     echo; echo "Str:"; echo "$InputString"; echo 
