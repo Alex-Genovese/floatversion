@@ -237,6 +237,13 @@ float_version_from_string ()  {
         ((n++))
       done
     fi
+    if [[ $SortNum ]]; then 
+      NumArrTemp=(); i=0 
+      while [[ $i -lt "${#fvOutputArr[@]}" ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i+=1)); done
+      [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -n )"
+      [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
+    fi
     if [[ $ShowRev ]]; then 
       NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
       while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
@@ -322,8 +329,11 @@ float_version ()  {
         mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -v "${DeleteArr[n]}")" ; ((n++))
       done
     fi
-    if [[ $ShowRev ]]; then 
-      NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
+    if [[ $SortNum ]]; then NumArrTemp=(); i=0 
+      while [[ $i -lt "${#fvOutputArr[@]}" ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i+=1)); done
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -n )"
+    fi
+    if [[ $ShowRev ]]; then NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
       while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
       mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
     fi

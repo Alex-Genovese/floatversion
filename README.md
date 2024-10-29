@@ -96,11 +96,11 @@ floatversion -f -s -D "beta rc" -i "non-pad-test.txt"
 - List as standard numeric or semantic
 
 ```bash
-floatversion -s -i "floats.txt" 
-0.0004  0.04  0.4  1.1  1.09  1.10  1.11  1.24  3.141  5.7899  16.32  23.3  34.6  67.900007  78.3  256.128  9999.999  999999.091 
+ floatversion --num -s -i "floats.txt" 
+0.039  0.4  1.09  1.1  1.10  1.11  1.222  1.24  3.0  3.1114  3.141  5.111899  5.7899  16.311  16.32  34.107  34.6 
 
-floatversion --num -s -i "floats.txt" 
-0.0004  0.04  0.4  1.09  1.1  1.10  1.11  1.24  16.32  23.3  256.128  3.141  34.6  5.7899  67.900007  78.3  999999.091  9999.999
+floatversion  -s -i "floats.txt" 
+0.4  0.039  1.1  1.09  1.10  1.11  1.24  1.222  3.0  3.141  3.1114  5.7899  5.111899  16.32  16.311  34.6  34.107 
 ```
 
 - Compare versions
