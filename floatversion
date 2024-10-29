@@ -56,8 +56,8 @@ float_version_from_string ()  {
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
   -F | --filter       allows filtered output in single string, whereas post-output grep requires columns,
-  -S | --starts       with -F as contains and -S as starting with, and -D as doesn't contain
-  -D | --delete       multiple filters allowed   -F | -S  \"string\"   -D  \"string  string  string\"  
+  -S | --starts       with -F as contains and -S as starting with, and -D as doesn't contain,
+  -D | --delete       multiple filters allowed:   -F | -S  \"string\"   -D  \"string  string  string\"  
   -i | --input        input string, text or list (for comparisons, use -g instead)
   -g | --gt           if A is greater than B, returns true, else false (from string of two, '-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
@@ -80,7 +80,7 @@ float_version_from_string ()  {
   local InputString=
   local FilterString=
   local StartString=
-  local DeleteString=   #  TODO   add to compact version
+  local DeleteString=   
   local GTcompare=
   [[ ! $Verbose ]] && local Verbose=
   declare -a NumArrTemp 
@@ -269,8 +269,8 @@ float_version_from_string ()  {
 float_version ()  {
   # floatversion --options  --input | --gt  "quoted-string"  
   # (c) Alex Genovese - version 1.0.0 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
-  local ShowAsStr= ; local ShowAsCol= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull=  
-  local InputString= ; local GTcompare= ; declare -a NumArrTemp  ; declare -a NumArrSorted ; declare -ga fvOutputArr  
+  local ShowAsStr= ; local ShowAsCol= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull= ; local FilterString= ; local StartString=
+  local DeleteString= ; local InputString= ; local GTcompare= ; declare -a NumArrTemp  ; declare -a NumArrSorted ; declare -ga fvOutputArr  
   while [[ "$1" ]] ; do
     case "$1" in 
       -s|--str)     ShowAsStr=1 ; shift ;;
@@ -279,6 +279,9 @@ float_version ()  {
       -a|--all)     ShowAll=1 ; shift ;;
       -n|--num)     SortNum=1 ; shift ;;
       -f|--full)    GrepFull=1 ; shift ;;
+      -F|--filter)  [[ ! $2 ]] && show_help && return 1 ; FilterString="$2" ; shift 2 ;;
+      -S|--start)   [[ ! $2 ]] && show_help && return 1 ; StartString="$2" ; shift 2 ;;
+      -D|--delete)  [[ ! $2 ]] && show_help && return 1 ; DeleteString="$2" ; shift 2 ;;
       -i|--input)   [[ ! $2 ]] && return 1 ; InputString="$2" ; shift $# ;;
       -g|--gt) [[ ! $2 ]] && return 1 ; GTcompare=1 ; InputString="$2" ; shift $# ;;
       *) printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1" ; return 1 ;;
@@ -287,6 +290,7 @@ float_version ()  {
   [[ -e "$InputString" ]] && InputString="$(cat -A "$InputString")"
   InputString="$(tr -cd '[:print:]' <<< "$InputString" | tr ';' ' ' | tr '$' ' ')" 
   [[ ! $InputString ]] && printf "\n\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n" && return 1
+  [[ $DeleteString ]] && mapfile -t DeleteArr <<< "$(tr ' ' '\n' <<< "$DeleteString")" 
   if [[ $GrepFull ]]; then Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputString" )"
   else Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputString" )"; fi ;  printf -v Nums "%s\n" "$Nums"
   Nums="$(grep '[[:digit:]]' <<< "$Nums")" ; [[ ! $Nums ]] && return 1
@@ -303,10 +307,26 @@ float_version ()  {
       |$version_core, ($pre_release|length)==0, $pre_release
     ) |.[]' )"
   fi  
-  if [[ $ShowRev ]] && [[ ! $GTcompare ]]; then 
-    NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
-    while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
-    mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
+  if [[ ! $GTcompare ]]; then 
+    if [[ $FilterString ]]; then NumArrTemp=(); i=0 
+      while [[ $i -lt "${#fvOutputArr[@]}" ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i+=1)); done
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep "$FilterString")"
+    fi
+    if [[ $StartString ]]; then  NumArrTemp=(); i=0 
+      while [[ $i -lt "${#fvOutputArr[@]}" ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i+=1)); done
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -E ^"$StartString")"
+    fi
+    if [[ $DeleteString ]]; then n=0
+      while [[ $n -lt "${#DeleteArr[@]}" ]]; do NumArrTemp=(); i=0 
+        while [[ $i -lt "${#fvOutputArr[@]}" ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i+=1)); done
+        mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -v "${DeleteArr[n]}")" ; ((n++))
+      done
+    fi
+    if [[ $ShowRev ]]; then 
+      NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
+      while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
+    fi
   fi
   if [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then printf "%s  " "${fvOutputArr[@]}" ; printf "\n"
   elif [[ $ShowAsCol ]]; then printf "%s\n" "${fvOutputArr[@]}"
