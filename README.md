@@ -91,6 +91,12 @@ floatversion -s -f -i "non-pad-test.txt"
 
 floatversion -f -s -D "beta rc" -i "non-pad-test.txt" 
 1.1.1  1.2.3-live  1.2.3  1.3.1  1.3.1.2  1.10.1  1.10.3  1.22.3  1.30.1  12.2.3 
+
+floatversion --rev -f -s -D "beta rc" -i "non-pad-test.txt" 
+12.2.3  1.30.1  1.22.3  1.10.3  1.10.1  1.3.1.2  1.3.1  1.2.3  1.2.3-live  1.1.1
+
+floatversion -f -s -F live -i "non-pad-test.txt" 
+1.2.3-live
 ```
 
 - List as standard numeric or semantic
