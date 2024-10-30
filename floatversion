@@ -11,11 +11,12 @@
 
 # Sorts to unique or listed entries, or to latest version in std numeric or sem. ver. 
 
-# Uses'jq' for version sorting as only Gnu sort has 'sort -V'  
-# and this is noticably absent both in Debian based distros and with MacOS
-# jq code source - https://stackoverflow.com/a/77961624/27611101
+# Uses'jq' for sorting suffixes
 
 # http://semver.org/ versioning does not list well in file managers.
+
+export "LC_NUMERIC=C.UTF-8"
+export "LC_COLLATE=C.UTF-8"
 
 if [ -z "$(command -v bash)" ] || [ "$(echo "$BASH_VERSION" | cut -d. -f1)" -lt 5 ]; then
   # posix compliant test
@@ -188,23 +189,24 @@ float_version_from_string ()  {
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}" | sort -n )"
   else
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}" | jq -Rrn '
-    # read input lines as an array
-    [inputs]
-    |sort_by(
-      # ignore build
-      split("+")[0]
-      # extract version core and pre-release as arrays of numbers and strings
-      |split("-")|(.[0]|split(".")|map(tonumber? // .)) as $version_core
-      |(.[1:]|join("-")|split(".")|map(tonumber? // .)) as $pre_release
-      # sort by
-      |$version_core,
-      # pre-release versions have a lower precedence than the associated normal version
-      ($pre_release|length)==0,
-      # sort by 
-      $pre_release
-    )
-    #extract values from an array
-    |.[]'
+      # https://stackoverflow.com/a/77961624/27611101
+      # read input lines as an array
+      [inputs]
+      |sort_by( 
+        # ignore build
+        split("+")[0]
+        # extract version core and pre-release as arrays of numbers and strings
+        |split("-")|(.[0]|split(".")|map(tonumber? // .)) as $version_core
+        |(.[1:]|join("-")|split(".")|map(tonumber? // .)) as $pre_release
+        # sort by
+        |$version_core,
+        # pre-release versions have a lower precedence than the associated normal version
+        ($pre_release|length)==0,
+        # sort by 
+        $pre_release
+      )
+      #extract values from an array
+      |.[]'
     )"
   fi    
 
