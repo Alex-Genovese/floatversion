@@ -15,8 +15,11 @@
 
 # http://semver.org/ versioning does not list well in file managers.
 
-export "LC_NUMERIC=C.UTF-8"
-export "LC_COLLATE=C.UTF-8"
+# Use C.UTF-8  where possible as has more locale  See https://wiki.archlinux.org/title/Locale 
+# NB if embedding, make sure that this or LC_ALL=C.UTF-8 or LC_ALL=C is present in the main script
+if  grep -sqi 'C.utf8' <<< "$(locale -a)"; then export "LC_NUMERIC=C.UTF-8" ; export "LC_COLLATE=C.UTF-8"
+else export "LC_NUMERIC=C" ; export "LC_COLLATE=C"
+fi
 
 if [ -z "$(command -v bash)" ] || [ "$(echo "$BASH_VERSION" | cut -d. -f1)" -lt 5 ]; then
   # posix compliant test
@@ -266,7 +269,8 @@ float_version_from_string ()  {
 
 ##
 
-# compact version, suitable for embedding into other scripts, if preferred  (help and annotation removed)
+# COMPACT VERSION, suitable for embedding into other scripts, if preferred  (help and annotation removed)
+# # NB make sure that locale is set in the main script. See notes at start.
 
 float_version ()  {
   # floatversion --options  --input | --gt  "quoted-string"  
