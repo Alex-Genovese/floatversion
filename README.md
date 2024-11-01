@@ -146,6 +146,8 @@ Up to Date
 
 Place script in a program includes folder or copy to `$PATH` eg `sudo cp floatversion /usr/bin`
 
+Make sure that script has execute permissions `sudo chmod +x /usr/bin/floatversion`
+
 Embed: in Bash scripts, either the full or the compact function.  
 
 For testing inside scripts, calls to the compact function may be prefixed with `command` in order to route to a path version.

@@ -255,7 +255,7 @@ float_version_from_string ()  {
       while [[ $n -lt "${#StartArr[@]}" ]]; do
         [[ $Verbose ]] && { echo "Starts: ${StartArr[n]}"; echo ;}
         NumArrTemp=(); i=0 
-        mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${fvOutputArr[@]}" | grep "${StartArr[n]}")"
+        mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${fvOutputArr[@]}" | grep -E ^"${StartArr[n]}")"
         [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
         while [[ $i -lt "${#NumArrTemp[@]}" ]]; do SelectArrTemp+=("${NumArrTemp[i]}"); ((i+=1)); done
         [[ $Verbose ]] && { declare -p SelectArrTemp ; echo ;}
@@ -362,7 +362,7 @@ float_version ()  {
     fi
     if [[ $StartString ]]; then n=0
       while [[ $n -lt "${#StartArr[@]}" ]]; do NumArrTemp=(); i=0 
-        mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${fvOutputArr[@]}" | grep "${StartArr[n]}")"
+        mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${fvOutputArr[@]}" | grep -E ^"${StartArr[n]}")"
         while [[ $i -lt "${#NumArrTemp[@]}" ]]; do SelectArrTemp+=("${NumArrTemp[i]}"); ((i+=1)); done; ((n++))
       done 
       fvOutputArr=(); i=0 ; while [[ $i -lt "${#SelectArrTemp[@]}" ]]; do fvOutputArr+=("${SelectArrTemp[i]}"); ((i+=1)); done
