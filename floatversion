@@ -302,7 +302,7 @@ float_version_from_string ()  {
 # # NB make sure that locale is set in the main script. See notes at start.
 
 float_version ()  {
-  # floatversion --options  --input | --gt  "quoted-string"  
+  # floatversion --options  "quoted-input-string-or-text-file" 
   # (c) Alex Genovese - version 1.0.0 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
   local ShowAsStr= ; local ShowAsCol= ; local ShowMax= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull= 
   local FilterString= ; local StartString= ; local DeleteString= ; local InputString= ; local GTcompare= ; declare -a NumArrTemp ; declare -a NumArrSorted
