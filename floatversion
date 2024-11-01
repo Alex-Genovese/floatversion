@@ -53,20 +53,20 @@ float_version_from_string ()  {
 
   -h | --help         show help 
   -V | --version      show version
-  -s | --str          show list as single string
-  -c | --col          show list as column
+  -c | --col          show list as column instead of string
   -r | --rev          show list in reverse order  
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
   -F | --filter       allows filtered output in single string, whereas post-output grep requires columns,
   -S | --starts       with -F as contains and -S as starting with, and -D as doesn't contain,
-  -D | --delete       multiple filters allowed:  -F | -S  \"string\"  -D  \"string  string  string\"  
+  -D | --delete       multiple filters allowed:  -F | -S  \"string\"  -D  \"string  string  string\"
+  -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
   -i | --input        input string, text or list (for comparisons, use -g instead)
   -g | --gt           if A is greater than B, returns true, else false (from string of two,'-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
 
-  Without options, outputs the highest/latest value in list, with '-r' shows lowest/earliest
+  Without options, produces a single sorted string of all unique items found
   All cases, returns false if none
   
   License: MIT  Copyright (c) Alex Genovese  
@@ -77,6 +77,7 @@ float_version_from_string ()  {
 
   local ShowAsCol=
   local ShowAsStr=
+  local ShowMax=
   local ShowAll=
   local ShowRev=
   local SortNum=
@@ -98,8 +99,6 @@ float_version_from_string ()  {
         show_help ; return 0 ;;
       -V|--version)  
         echo "1.0.0" ; return 0 ;;
-      -s|--str)
-        ShowAsStr=1 ; shift ;;
       -c|--col)
         ShowAsCol=1 ; shift ;;
       -r|--rev)
@@ -119,6 +118,8 @@ float_version_from_string ()  {
       -D|--delete)
         [[ ! $2 ]] && show_help && return 1
         DeleteString="$2" ; shift 2 ;;
+      -M|--max)
+        ShowMax=1 ; shift ;;
       -i|--input)
         [[ ! $2 ]] && show_help && return 1
         InputString="$2" ; shift $# ;;
@@ -144,6 +145,11 @@ float_version_from_string ()  {
   fi
 
   [[ $DeleteString ]] && mapfile -t DeleteArr <<< "$(tr ' ' '\n' <<< "$DeleteString")"
+
+  if [[ $ShowMax ]]; then ShowAsStr= ; ShowAsCol=
+  elif [[ $ShowAsCol ]]; then ShowAsStr=
+  else ShowAsStr=1
+  fi
 
   if [[ $Verbose ]]; then 
     echo; echo "Str:"; echo "$InputString"; echo 
@@ -275,11 +281,10 @@ float_version_from_string ()  {
 float_version ()  {
   # floatversion --options  --input | --gt  "quoted-string"  
   # (c) Alex Genovese - version 1.0.0 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
-  local ShowAsStr= ; local ShowAsCol= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull= ; local FilterString= ; local StartString=
+  local ShowAsStr= ; local ShowAsCol= ; local ShowMax= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull= ; local FilterString= ; local StartString=
   local DeleteString= ; local InputString= ; local GTcompare= ; declare -a NumArrTemp  ; declare -a NumArrSorted ; declare -ga fvOutputArr  
   while [[ "$1" ]] ; do
     case "$1" in 
-      -s|--str)     ShowAsStr=1 ; shift ;;
       -c|--col)     ShowAsCol=1 ; shift ;;
       -r|--rev)     ShowRev=1 ; shift ;;
       -a|--all)     ShowAll=1 ; shift ;;
@@ -288,6 +293,7 @@ float_version ()  {
       -F|--filter)  [[ ! $2 ]] && show_help && return 1 ; FilterString="$2" ; shift 2 ;;
       -S|--start)   [[ ! $2 ]] && show_help && return 1 ; StartString="$2" ; shift 2 ;;
       -D|--delete)  [[ ! $2 ]] && show_help && return 1 ; DeleteString="$2" ; shift 2 ;;
+      -M|--max)     ShowMax=1 ; shift ;;
       -i|--input)   [[ ! $2 ]] && return 1 ; InputString="$2" ; shift $# ;;
       -g|--gt) [[ ! $2 ]] && return 1 ; GTcompare=1 ; InputString="$2" ; shift $# ;;
       *) printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1" ; return 1 ;;
@@ -297,6 +303,7 @@ float_version ()  {
   InputString="$(tr -cd '[:print:]' <<< "$InputString" | tr ';' ' ' | tr '$' ' ')" 
   [[ ! $InputString ]] && printf "\n\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n" && return 1
   [[ $DeleteString ]] && mapfile -t DeleteArr <<< "$(tr ' ' '\n' <<< "$DeleteString")" 
+  if [[ $ShowMax ]]; then ShowAsStr= ; ShowAsCol= ; elif [[ $ShowAsCol ]]; then ShowAsStr= ; else ShowAsStr=1 ; fi
   if [[ $GrepFull ]]; then Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputString" )"
   else Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputString" )"; fi ;  printf -v Nums "%s\n" "$Nums"
   Nums="$(grep '[[:digit:]]' <<< "$Nums")" ; [[ ! $Nums ]] && return 1
