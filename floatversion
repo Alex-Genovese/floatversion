@@ -46,27 +46,27 @@ float_version_from_string ()  {
 
 	show_help () {
 	  printf "
-  floatversion --options  --input | --gt  \"QUOTED-string\"
+  floatversion --options  \"quoted-input-source\"
 
   Extracts point separated numbers, or semantic version numbers with optional suffixes,
-  and other common variations upon, from a given string or text list
+  and other common variations upon, from a given string or text-file
 
   -h | --help         show help 
   -V | --version      show version
-  -c | --col          show list as column instead of string
+  -c | --col          show list as column instead of string (unless -M)
   -r | --rev          show list in reverse order  
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
-  -F | --filter       allows filtered output in single string, whereas post-output grep requires columns,
-  -S | --starts       with -F as contains and -S as starting with, and -D as doesn't contain,
-  -D | --delete       multiple filters allowed:  -F | -S  \"string\"  -D  \"string  string  string\"
+  -F | --filter       contains given items -F  \"string  string  string\" 
+  -S | --starts       starting with -S  \"string  string  string\" 
+  -D | --delete       doesn't contain: -D  \"string  string  string\" 
   -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
-  -i | --input        input string, text or list (for comparisons, use -g instead)
   -g | --gt           if A is greater than B, returns true, else false (from string of two,'-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
 
   Without options, produces a single sorted string of all unique items found
+  Filters output as string, column or max. Post-output grep requires columns.
   All cases, returns false if none
   
   License: MIT  Copyright (c) Alex Genovese  
@@ -90,7 +90,10 @@ float_version_from_string ()  {
   [[ ! $Verbose ]] && local Verbose=
   declare -a NumArrTemp 
   declare -a NumArrSorted 
+  declare -a FilterArr 
+  declare -a StartArr 
   declare -a DeleteArr 
+  declare -a SelectArrTemp
   declare -ga fvOutputArr  
   
   while [[ "$1" ]] ; do
@@ -120,18 +123,17 @@ float_version_from_string ()  {
         DeleteString="$2" ; shift 2 ;;
       -M|--max)
         ShowMax=1 ; shift ;;
-      -i|--input)
-        [[ ! $2 ]] && show_help && return 1
-        InputString="$2" ; shift $# ;;
       -g|--gt)
-        [[ ! $2 ]] && show_help && return 1
-        GTcompare=1
-        InputString="$2" ; shift $# ;;
+        GTcompare=1; shift ;;
       -v|--verbose)
         Verbose=1 ; shift ;;
       *) 
-        printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
-        show_help ; return 1 ;;
+        if [[ "$1" == '-'* ]]; then
+          printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
+          show_help ; return 1
+        else
+          InputString="$1" ; shift 
+        fi ;;
     esac
   done
 
@@ -140,10 +142,12 @@ float_version_from_string ()  {
   InputString="$(tr -cd '[:print:]' <<< "$InputString" | tr ';' ' ' | tr '$' ' \n')" 
 
   if [[ ! $InputString ]]; then 
-    printf "\n\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n"  
+    printf "\n\n  ERROR: no input found.  Is input present as a quoted element? \n\n"  
     show_help ; return 1
   fi
 
+  [[ $FilterString ]] && mapfile -t FilterArr <<< "$(tr ' ' '\n' <<< "$FilterString")"
+  [[ $StartString ]] && mapfile -t StartArr <<< "$(tr ' ' '\n' <<< "$StartString")"
   [[ $DeleteString ]] && mapfile -t DeleteArr <<< "$(tr ' ' '\n' <<< "$DeleteString")"
 
   if [[ $ShowMax ]]; then ShowAsStr= ; ShowAsCol=
@@ -154,6 +158,8 @@ float_version_from_string ()  {
   if [[ $Verbose ]]; then 
     echo; echo "Str:"; echo "$InputString"; echo 
     printf "Filters: -F \"%s\" -S \"%s\"  -D \"%s\" \n\n"  "$FilterString" "$StartString"  "$DeleteString" 
+    declare -p FilterArr ; echo
+    declare -p StartArr ; echo
     declare -p DeleteArr ; echo
   fi
 
@@ -223,18 +229,32 @@ float_version_from_string ()  {
 
   # Filters
   if [[ ! $GTcompare ]]; then 
-    if [[ $FilterString ]]; then 
-      NumArrTemp=(); i=0 
-      while [[ $i -lt "${#fvOutputArr[@]}" ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i+=1)); done
-      [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
-      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep "$FilterString")"
+    if [[ $FilterString ]]; then n=0
+      while [[ $n -lt "${#FilterArr[@]}" ]]; do
+        [[ $Verbose ]] && { echo "Select: ${FilterArr[n]}"; echo ;}
+        NumArrTemp=(); i=0 
+        mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${fvOutputArr[@]}" | grep "${FilterArr[n]}")"
+        [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
+        while [[ $i -lt "${#NumArrTemp[@]}" ]]; do SelectArrTemp+=("${NumArrTemp[i]}"); ((i+=1)); done
+        [[ $Verbose ]] && { declare -p SelectArrTemp ; echo ;}
+        ((n++))
+      done 
+      fvOutputArr=(); i=0 
+      while [[ $i -lt "${#SelectArrTemp[@]}" ]]; do fvOutputArr+=("${SelectArrTemp[i]}"); ((i+=1)); done
       [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
     fi
-    if [[ $StartString ]]; then 
-      NumArrTemp=(); i=0 
-      while [[ $i -lt "${#fvOutputArr[@]}" ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i+=1)); done
-      [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
-      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -E ^"$StartString")"
+    if [[ $StartString ]]; then n=0
+      while [[ $n -lt "${#StartArr[@]}" ]]; do
+        [[ $Verbose ]] && { echo "Starts: ${StartArr[n]}"; echo ;}
+        NumArrTemp=(); i=0 
+        mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${fvOutputArr[@]}" | grep "${StartArr[n]}")"
+        [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
+        while [[ $i -lt "${#NumArrTemp[@]}" ]]; do SelectArrTemp+=("${NumArrTemp[i]}"); ((i+=1)); done
+        [[ $Verbose ]] && { declare -p SelectArrTemp ; echo ;}
+        ((n++))
+      done 
+      fvOutputArr=(); i=0 
+      while [[ $i -lt "${#SelectArrTemp[@]}" ]]; do fvOutputArr+=("${SelectArrTemp[i]}"); ((i+=1)); done
       [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
     fi
     if [[ $DeleteString ]]; then n=0
