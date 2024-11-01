@@ -11,7 +11,9 @@
 
 # Sorts to unique or listed entries, or to latest version in std numeric or sem. ver. 
 
-# Uses'jq' for sorting suffixes, unless specified (@2024 only Gnu Sort has 'sort -V')
+# Uses'jq' for sorting suffixes, unless specified (@2024 only Gnu Sort has 'sort -V') set =1
+# Tests show jq method to be slightly better than sort -V but neither are perfect.
+# If embedding, this flag can be set as global by the calling script if needed ...
 UseGnuSortV=
 
 # http://semver.org/ versioning does not list well in file managers.
@@ -99,7 +101,7 @@ float_version_from_string ()  {
   
   while [[ "$1" ]] ; do
     case "$1" in 
-      --help|-h)  
+      -h|--help)  
         show_help ; return 0 ;;
       -V|--version)  
         echo "1.0.0" ; return 0 ;;
