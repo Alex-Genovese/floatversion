@@ -135,7 +135,7 @@ float_version_from_string ()  {
           printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
           show_help ; return 1
         elif [[ $InputString ]]; then
-          printf "\n\n  ERROR:  Input String or Text File Name should be given only once \n\n" 
+          printf "\n\n  ERROR: QUOTED Input String or Text File Name should be given only once \n\n" 
           show_help ; return 1
         else
           InputString="$1" ; shift 
@@ -325,7 +325,7 @@ float_version ()  {
       -M|--max)     ShowMax=1 ; shift ;;
       -g|--gt)      GTcompare=1 ; shift ;;
       *)  if [[ "$1" == '-'* ]]; then printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"; show_help ; return 1
-          elif [[ $InputString ]]; then printf "\n\n  ERROR:  Input String or Text File Name should be given only once \n\n" ; show_help ; return 1
+          elif [[ $InputString ]]; then printf "\n\n  ERROR:  QUOTED Input String or Text File Name should be given only once \n\n" ; show_help ; return 1
           else InputString="$1" ; shift ; fi ;;
     esac
   done
