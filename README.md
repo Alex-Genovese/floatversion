@@ -142,6 +142,30 @@ Up to Date
 
 ```
 
+## JQ sorting
+
+Testing shows the JQ sort formula is more reliable.
+
+JQ:
+
+```bash
+floatversion  -f -S "1.2" "non-pad-test.txt" 
+1.2.0-beta.2  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.2.3  1.22.3-rc1  1.22.3
+
+floatversion  -f -S "1.2" -M "non-pad-test.txt" 
+1.22.3
+```
+
+Gnu `sort -V`
+
+```bash
+floatversion  -f -S "1.2" "non-pad-test.txt" 
+1.2.0-beta.2  1.2.3  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.22.3  1.22.3-rc1  
+
+floatversion  -f -S "1.2" -M "non-pad-test.txt" 
+1.22.3-rc1
+```
+
 ## Install
 
 Place script in a program includes folder or copy to `$PATH` eg `sudo cp floatversion /usr/bin`

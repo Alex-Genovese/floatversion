@@ -11,10 +11,13 @@
 
 # Sorts to unique or listed entries, or to latest version in std numeric or sem. ver. 
 
-# Uses'jq' for sorting suffixes, unless specified (@2024 only Gnu Sort has 'sort -V') set =1
-# Tests show jq method to be slightly better than sort -V but neither are perfect.
-# If embedding, this flag can be set as global by the calling script if needed ...
-UseGnuSortV=
+# Uses'jq' for sorting suffixes, unless specified. 
+# Neither are perfect but tests show jq method to be slightly better than sort -V 
+# Also as various 'version-sort' algorithms may exist, sort -V may not be consistent.
+
+# If embedding, this flag can be set (=1) as global by the calling script if needed ...
+UseSortV=
+UseSortVfallback=
 
 # http://semver.org/ versioning does not list well in file managers.
 
@@ -29,11 +32,16 @@ if [ -z "$(command -v bash)" ] || [ "$(echo "$BASH_VERSION" | cut -d. -f1)" -lt 
   echo; echo "  Sorry, you need Bash, probably 5.0 or newer to run this script."; echo
   echo "  FloatVersion has only been tested on up-to-date versions of Bash"; echo
   echo "  Certain elements require at least ver 4.2 .... "; echo
-  if [ -n "$(command -v bash)" ]; then echo "  Your version: "; echo ; bash --version ; echo
-  fi
+  if [ -n "$(command -v bash)" ]; then echo "  Your version: "; echo ; bash --version ; echo ; fi
 fi
 
-if [ -z "$UseGnuSortV" ] && [ -z "$(command -v jq)" ]; then
+if [ -n "$UseSortV" ] &&  ! sort --help | grep -q -o 'version-sort' ; then 
+  if [ -z "$UseSortVfallback" ]; then
+      echo; echo "  Sorry, 'sort -V' is not available, you need 'jq' to run this script."; echo
+  else UseSortV= ; fi
+fi
+
+if [ -z "$UseSortV" ] && [ -z "$(command -v jq)" ]; then
   echo; echo "  Sorry, you need to install 'jq' to run this script."; echo
 fi
 
@@ -208,11 +216,12 @@ float_version_from_string ()  {
   fi
 
   [[ $Verbose ]] && { declare -p NumArrSorted ; echo ;}
+  [[ $Verbose ]] && [[ $UseSortV ]] && { echo "Using SortV" ; echo ;}
   
   # sort into order
   if [[ $SortNum ]]; then
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}" | sort -n )"
-  elif [[ $UseGnuSortV ]]; then
+  elif [[ $UseSortV ]]; then
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}" | sort -V )"
   else
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}" | jq -Rrn '
