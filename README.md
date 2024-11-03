@@ -141,7 +141,7 @@ floatversion  "floats.txt"
 - Compare versions
 
 ```bash
-Previous="$(floatversion "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" )"
+Previous="$(floatversion -M "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" )"
 Current="$(cat /etc/debian_version)"
 if floatversion -g "$Current $Previous"; then echo "Up to Date"; fi
 Up to Date
