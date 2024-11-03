@@ -289,16 +289,17 @@ float_version_from_string ()  {
     fi
   fi
 
-  if [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then
-    printf "%s  " "${fvOutputArr[@]}"
-    printf "\n"
-  elif [[ $ShowAsCol ]]; then
-    printf "%s\n" "${fvOutputArr[@]}"
-  elif [[ $GTcompare ]]; then
+  # output
+  if [[ $GTcompare ]]; then
     if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then 
     [[ $Verbose ]] && { echo "true"; echo ;} ; return 0
     else [[ $Verbose ]] && { echo "false"; echo ;} ; return 1
     fi
+  elif [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then
+    printf "%s  " "${fvOutputArr[@]}"
+    printf "\n"
+  elif [[ $ShowAsCol ]]; then
+    printf "%s\n" "${fvOutputArr[@]}"
   else
     echo "${fvOutputArr[-1]}"
   fi
@@ -314,8 +315,9 @@ float_version ()  {
   # floatversion --options  "quoted-input-string-or-text-file" 
   # (c) Alex Genovese - version 1.0.0 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
   local ShowAsStr= ; local ShowAsCol= ; local ShowMax= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull= 
-  local FilterString= ; local StartString= ; local DeleteString= ; local InputText= ; local GTcompare= ; declare -a NumArrTemp ; declare -a NumArrSorted
-  declare -a FilterArr ; declare -a StartArr ; declare -a DeleteArr ; declare -a SelectArrTemp ; declare -ga fvOutputArr  
+  local InputText= ; local Nums= ; local NumsCount= ; local FilterString= ; local StartString= ; local DeleteString= ; local GTcompare=
+  declare -a NumArrTemp ; declare -a NumArrSorted ; declare -a FilterArr ; declare -a StartArr ; declare -a DeleteArr
+  declare -a SelectArrTemp ; declare -ga fvOutputArr  
   while [[ "$1" ]] ; do
     case "$1" in 
       -c|--col)     ShowAsCol=1 ; shift ;;
@@ -334,7 +336,7 @@ float_version ()  {
     esac
   done
   [[ -e "$InputText" ]] && InputText="$(cat -A "$InputText")"
-  InputText="$(tr -cd '[:print:]' <<< "$InputText" | tr ';' ' ' | tr '$' ' ')" 
+  InputText="$(tr -cd '[:print:]' <<< "$InputText" | tr ';' ' ' | tr '$' ' ' | tr ' ' '\n' | grep -E '[[:print:]]')" 
   [[ ! $InputText ]] && printf "\n\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n" && return 1
   [[ $FilterString ]] && mapfile -t FilterArr <<< "$(tr ' ' '\n' <<< "$FilterString")"
   [[ $StartString ]] && mapfile -t StartArr <<< "$(tr ' ' '\n' <<< "$StartString")"
@@ -342,9 +344,10 @@ float_version ()  {
   if [[ $ShowMax ]]; then ShowAsStr= ; ShowAsCol= ; elif [[ $ShowAsCol ]]; then ShowAsStr= ; else ShowAsStr=1 ; fi
   if [[ $GrepFull ]]; then Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputText" )"
   else Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputText" )"; fi ;  printf -v Nums "%s\n" "$Nums"
-  Nums="$(grep '[[:digit:]]' <<< "$Nums")" ; [[ ! $Nums ]] && return 1
+  Nums="$(grep '[[:print:]]' <<< "$Nums")" ; NumsCount="$(wc -l <<< "$Nums")" 
+  [[ $GTcompare ]] && [[ "$NumsCount" != 2 ]] && printf "\n\n  ERROR:  two floating point or semantic version values should be supplied \n\n" && return 1
+  [[ ! $Nums ]] && return 1
   mapfile -t NumArrTemp  <<< "$(tr ' ' '\n' <<< "$Nums")"
-  [[ $GTcompare ]] && [[ "${#NumArrTemp[@]}" -gt 2 ]] && printf "\n\n  ERROR:  only two values should be supplied \n\n"  && return 1
   if [[ $ShowAll ]]; then mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort )"
   else mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )" ; fi
   if [[ $SortNum ]]; then mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}" | sort -n )"
@@ -382,11 +385,10 @@ float_version ()  {
       mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
     fi
   fi
-  if [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then printf "%s  " "${fvOutputArr[@]}" ; printf "\n"
+  if [[ $GTcompare ]]; then 
+    if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then return 0 ; else return 1 ; fi
+  elif [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then printf "%s  " "${fvOutputArr[@]}" ; printf "\n"
   elif [[ $ShowAsCol ]]; then printf "%s\n" "${fvOutputArr[@]}"
-  elif [[ $GTcompare ]]; then 
-    if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then return 0 
-    else return 1 ; fi
   else  echo "${fvOutputArr[-1]}"
   fi
 }
