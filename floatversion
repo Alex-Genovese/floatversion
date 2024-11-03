@@ -65,7 +65,7 @@ float_version_from_string ()  {
   -S | --starts       starting with -S  \"string  string  string\" 
   -D | --delete       doesn't contain: -D  \"string  string  string\" 
   -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
-  -g | --gt           if A is greater than B, returns true, else false (from string of two,'-r' is ignored)
+  -g | --gt           if A.a is greater than B.b, returns true, else false (from string of two floats,'-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
 
   Without options, produces a single sorted string of all unique items found
@@ -85,7 +85,9 @@ float_version_from_string ()  {
   local ShowRev=
   local SortNum=
   local GrepFull=
-  local InputString=
+  local InputText=
+  local Nums=
+  local NumsCount=
   local FilterString=
   local StartString=
   local DeleteString=   
@@ -134,20 +136,20 @@ float_version_from_string ()  {
         if [[ "$1" == '-'* ]]; then
           printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"
           show_help ; return 1
-        elif [[ $InputString ]]; then
+        elif [[ $InputText ]]; then
           printf "\n\n  ERROR: QUOTED Input String or Text File Name should be given only once \n\n" 
           show_help ; return 1
         else
-          InputString="$1" ; shift 
+          InputText="$1" ; shift 
         fi ;;
     esac
   done
 
-  # sanitize
-  [[ -e "$InputString" ]] && InputString="$(cat -A "$InputString")"
-  InputString="$(tr -cd '[:print:]' <<< "$InputString" | tr ';' ' ' | tr '$' ' \n')" 
+  # sanitize and make sure that input is a safe line separated list, or becomes one
+  [[ -e "$InputText" ]] && InputText="$(cat -A "$InputText")"
+  InputText="$(tr -cd '[:print:]' <<< "$InputText" | tr ';' ' ' | tr '$' ' \n' | tr ' ' '\n' | grep -E '[[:print:]]')" 
 
-  if [[ ! $InputString ]]; then 
+  if [[ ! $InputText ]]; then 
     printf "\n\n  ERROR: no input found.  Is input present as a quoted element? \n\n"  
     show_help ; return 1
   fi
@@ -162,50 +164,52 @@ float_version_from_string ()  {
   fi
 
   if [[ $Verbose ]]; then 
-    echo; echo "Str:"; echo "$InputString"; echo 
+    echo; echo "Str: ($(wc -l <<< "$InputText"))"; echo "$InputText"; echo 
     printf "Filters: -F \"%s\" -S \"%s\"  -D \"%s\" \n\n"  "$FilterString" "$StartString"  "$DeleteString" 
     declare -p FilterArr ; echo
     declare -p StartArr ; echo
     declare -p DeleteArr ; echo
   fi
 
+  # extract 
   if [[ $GrepFull ]]; then 
     Nums="$(grep -Eo \
     '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< \
-    "$InputString" )"
+    "$InputText" )"
     printf -v Nums "%s\n" "$Nums"
   else
    # grep for all entries but then remove any with suffixes 
    Nums="$(grep -Eo \
    '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< \
-   "$InputString" | grep -v -E '[[:alpha:]]' )"
+   "$InputText" | grep -v -E '[[:alpha:]]' )"
    printf -v Nums "%s\n" "$Nums"
   fi
 
-  # further sanitize
-  Nums="$(grep '[[:digit:]]' <<< "$Nums")"
-  [[ $Verbose ]] && { echo "Nums: ($(grep -c '[[:digit:]]' <<< "$Nums"))"; echo "$Nums"; echo ;}
-  
+  # check
+  Nums="$(grep '[[:print:]]' <<< "$Nums")"
+  NumsCount="$(wc -l <<< "$Nums")"
+
+  [[ $Verbose ]] && { echo "Nums: ($NumsCount)"; echo "$Nums"; echo ;}
+
+  if [[ $GTcompare ]] && [[ "$NumsCount" != 2 ]]; then 
+    printf "\n\n  ERROR:  two floating point or semantic version values should be supplied \n\n"  
+    show_help ; return 1
+  fi
+
   # none found, return false
   [[ ! $Nums ]] && return 1
 
   mapfile -t NumArrTemp  <<< "$(tr ' ' '\n' <<< "$Nums")"
-
-  if [[ $GTcompare ]] && [[ "${#NumArrTemp[@]}" -gt 2 ]]; then 
-    printf "\n\n  ERROR:  only two values should be supplied \n\n"  
-    show_help ; return 1
-  fi
-
   [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
 
-  if [[ $ShowAll ]]; then 
-    mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort )"
-  else
-    mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )"
+  # sort unique, as required
+  if [[ $ShowAll ]]; then  mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort )"
+  else mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}" | sort -u )"
   fi
 
   [[ $Verbose ]] && { declare -p NumArrSorted ; echo ;}
   
+  # sort into order
   if [[ $SortNum ]]; then
     mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrSorted[@]}" | sort -n )"
   elif [[ $UseGnuSortV ]]; then
@@ -310,7 +314,7 @@ float_version ()  {
   # floatversion --options  "quoted-input-string-or-text-file" 
   # (c) Alex Genovese - version 1.0.0 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
   local ShowAsStr= ; local ShowAsCol= ; local ShowMax= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull= 
-  local FilterString= ; local StartString= ; local DeleteString= ; local InputString= ; local GTcompare= ; declare -a NumArrTemp ; declare -a NumArrSorted
+  local FilterString= ; local StartString= ; local DeleteString= ; local InputText= ; local GTcompare= ; declare -a NumArrTemp ; declare -a NumArrSorted
   declare -a FilterArr ; declare -a StartArr ; declare -a DeleteArr ; declare -a SelectArrTemp ; declare -ga fvOutputArr  
   while [[ "$1" ]] ; do
     case "$1" in 
@@ -325,19 +329,19 @@ float_version ()  {
       -M|--max)     ShowMax=1 ; shift ;;
       -g|--gt)      GTcompare=1 ; shift ;;
       *)  if [[ "$1" == '-'* ]]; then printf "\n\n  ERROR:  '%s'  not recognised \n\n"  "$1"; show_help ; return 1
-          elif [[ $InputString ]]; then printf "\n\n  ERROR:  QUOTED Input String or Text File Name should be given only once \n\n" ; show_help ; return 1
-          else InputString="$1" ; shift ; fi ;;
+          elif [[ $InputText ]]; then printf "\n\n  ERROR:  QUOTED Input String or Text File Name should be given only once \n\n" ; show_help ; return 1
+          else InputText="$1" ; shift ; fi ;;
     esac
   done
-  [[ -e "$InputString" ]] && InputString="$(cat -A "$InputString")"
-  InputString="$(tr -cd '[:print:]' <<< "$InputString" | tr ';' ' ' | tr '$' ' ')" 
-  [[ ! $InputString ]] && printf "\n\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n" && return 1
+  [[ -e "$InputText" ]] && InputText="$(cat -A "$InputText")"
+  InputText="$(tr -cd '[:print:]' <<< "$InputText" | tr ';' ' ' | tr '$' ' ')" 
+  [[ ! $InputText ]] && printf "\n\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n" && return 1
   [[ $FilterString ]] && mapfile -t FilterArr <<< "$(tr ' ' '\n' <<< "$FilterString")"
   [[ $StartString ]] && mapfile -t StartArr <<< "$(tr ' ' '\n' <<< "$StartString")"
   [[ $DeleteString ]] && mapfile -t DeleteArr <<< "$(tr ' ' '\n' <<< "$DeleteString")" 
   if [[ $ShowMax ]]; then ShowAsStr= ; ShowAsCol= ; elif [[ $ShowAsCol ]]; then ShowAsStr= ; else ShowAsStr=1 ; fi
-  if [[ $GrepFull ]]; then Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputString" )"
-  else Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputString" )"; fi ;  printf -v Nums "%s\n" "$Nums"
+  if [[ $GrepFull ]]; then Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputText" )"
+  else Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputText" )"; fi ;  printf -v Nums "%s\n" "$Nums"
   Nums="$(grep '[[:digit:]]' <<< "$Nums")" ; [[ ! $Nums ]] && return 1
   mapfile -t NumArrTemp  <<< "$(tr ' ' '\n' <<< "$Nums")"
   [[ $GTcompare ]] && [[ "${#NumArrTemp[@]}" -gt 2 ]] && printf "\n\n  ERROR:  only two values should be supplied \n\n"  && return 1
