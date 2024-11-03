@@ -26,24 +26,27 @@ floatversion -s -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" |
 - Filters for include, exclude, starts with, and reverse
 
 ```txt
- floatversion --options  --input | --gt  "quoted-string"
+  floatversion --options  "quoted-input-source"
+
+  Extracts point separated numbers, or semantic version numbers with optional suffixes,
+  and other common variations upon, from a given string or text-file
 
   -h | --help         show help 
   -V | --version      show version
-  -s | --str          show list as single string
-  -c | --col          show list as column
+  -c | --col          show list as column instead of string (unless -M)
   -r | --rev          show list in reverse order  
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
   -f | --full         check for additional sem. ver. suffixes,  eg. -beta
-  -F | --filter       allows filtered output in single string, whereas post-output grep requires columns,
-  -S | --starts       with -F as contains and -S as starting with, and -D as doesn't contain,
-  -D | --delete       multiple filters allowed:  -F | -S  "string"  -D  "string  string  string"  
-  -i | --input        input string, text or list (for comparisons, use -g instead)
-  -g | --gt           if A is greater than B, returns true, else false (from string of two,'-r' is ignored)
+  -F | --filter       contains given items -F  "string  string  string" 
+  -S | --starts       starting with -S  "string  string  string" 
+  -D | --delete       doesn't contain: -D  "string  string  string" 
+  -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
+  -g | --gt           if A is greater than B, returns true, else false (from string of two floats,'-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
 
-  Without options, outputs the highest/latest value in list, with '-r' shows lowest/earliest
+  Without options, produces a single sorted string of all unique items found
+  Filters output as string, column or max. Post-output grep requires columns.
   All cases, returns false if none
 ```
 

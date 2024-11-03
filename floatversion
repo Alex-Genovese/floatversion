@@ -73,7 +73,7 @@ float_version_from_string ()  {
   -S | --starts       starting with -S  \"string  string  string\" 
   -D | --delete       doesn't contain: -D  \"string  string  string\" 
   -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
-  -g | --gt           if A.a is greater than B.b, returns true, else false (from string of two floats,'-r' is ignored)
+  -g | --gt           if A is greater than B, returns true, else false (from string of two floats,'-r' is ignored)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
 
   Without options, produces a single sorted string of all unique items found
