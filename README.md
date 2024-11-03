@@ -42,7 +42,7 @@ floatversion -s -i "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" |
   -S | --starts       starting with -S  "string  string  string" 
   -D | --delete       doesn't contain: -D  "string  string  string" 
   -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
-  -g | --gt           if A is greater than B, returns true, else false (from string of two floats,'-r' is ignored)
+  -g | --gt           A > B, returns true/false -g "A B" (.nums or sem ver, for -lt use B A)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
 
   Without options, produces a single sorted string of all unique items found
