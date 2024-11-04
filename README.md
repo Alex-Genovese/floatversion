@@ -44,9 +44,12 @@ floatversion "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 
   -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
   -g | --gt           A > B, returns true/false -g "A B" (.nums or sem ver, for -lt use B A)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
+       --sort-v        use system sort -V if available (& if jq methods are causing problems)
+       --no-svb       no falling back to 'jq' if 'sort -V' is unavailable, show error instead
 
   Without options, produces a single sorted string of all unique items found
   Filters output as string, column or max. Post-output grep requires columns.
+  Tests show 'jq' sort methods as more reliable than 'sort -V' esp. with alpha suffixes
   All cases, returns false if none
 ```
 
@@ -67,10 +70,10 @@ floatversion  -f -S "1.2" -M "non-pad-test.txt"
 Gnu `sort -V`
 
 ```bash
-floatversion  -f -S "1.2" "non-pad-test.txt" 
+floatversion --sort-v  -f -S "1.2" "non-pad-test.txt" 
 1.2.0-beta.2  1.2.3  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.22.3  1.22.3-rc1  
 
-floatversion  -f -S "1.2" -M "non-pad-test.txt" 
+floatversion --sort-v  -f -S "1.2" -M "non-pad-test.txt" 
 1.22.3-rc1
 ```
 
