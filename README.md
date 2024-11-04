@@ -44,7 +44,7 @@ floatversion "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 
   -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
   -g | --gt           A > B, returns true/false -g "A B" (.nums or sem ver, for -lt use B A)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
-       --sort-v        use system sort -V if available (& if jq methods are causing problems)
+       --sort-v       use system sort -V if available (& if jq methods are causing problems)
        --no-svb       no falling back to 'jq' if 'sort -V' is unavailable, show error instead
 
   Without options, produces a single sorted string of all unique items found

@@ -146,9 +146,10 @@ float_version_from_string ()  {
     esac
   done
 
-  # sanitize and make sure that input is a safe line separated list, or becomes one
+  # if input is file name, then read file,
+  # sanitize and make sure that all input is a safe line separated list, or becomes one
   [[ -e "$InputText" ]] && InputText="$(cat -A "$InputText")"
-  InputText="$(tr -cd '[:print:]' <<< "$InputText" | tr ';' ' ' | tr '$' ' \n' | tr ' ' '\n' | grep -E '[[:print:]]')" 
+  InputText="$(tr ';' ' '  <<< "$InputText" | tr '$' ' \n' | tr ' ' '\n' | grep -E '[[:print:]]')" 
 
   if [[ ! $InputText ]]; then 
     printf "\n\n  ERROR: no input found.  Is input present as a quoted element? \n\n"  
