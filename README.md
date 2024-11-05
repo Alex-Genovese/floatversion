@@ -176,13 +176,91 @@ Up to Date
 
 ## Install
 
+### Standalone
+
 Place script in a program includes folder or copy to `$PATH` eg `sudo cp floatversion /usr/bin`
 
 Make sure that script has execute permissions `sudo chmod +x /usr/bin/floatversion`
 
-Embed: in Bash scripts, either the full or the compact function.  
+### Embedding in Bash scripts
 
-For testing inside scripts, calls to the compact function may be prefixed with `command` in order to route to a path version.
+In basic single scripts, the compact function is a simple copy and paste which is ready to go.  
+
+The full version is named differently to enable easy separation within the standalone script. In larger projects, the required extra space won't notice and you have verbose mode ready built in.
+
+When pasting the full version, it is envisaged that it be renamed to `floatversion`, the same as with the compact one. This way any later decisions to use the compact function, or any code re-use, won't impact on anything.
+
+For testing the compact function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any script calls can then be temporarily prefixed by the control word `command` which will cause routing to that instead and will allow verbose output to be enabled.
+
+### Use in different shells
+
+The script's Shebang will mean that direct running of the standalone is possible from the interactive terminal. 
+
+For example:
+
+```fish
+╭─xxx@garuda in repo: floatversion on  main [$]
+╰─λ echo $SHELL
+/usr/bin/fish
+
+╭─xxx@garuda in repo: floatversion on  main [$]
+╰─λ ./floatversion -F 10 -M -n  non-pad-test.txt
+1.10.3
+```
+
+To include calls to `floatversion` standalone script from within an actual fishshell script, the following [method](https://github.com/fish-shell/fish-shell/issues/4488) may be used:
+
+```fish
+╭─xxx@garuda in repo: floatversion on  main [$] took 0s
+╰─λ if bash -c './floatversion --gt "1.4.5  2.3.6.7"'
+echo yes
+else
+echo no
+end
+
+no
+
+╭─xxx@garuda in repo: floatversion on  main [$] took 0s
+╰─λ if bash -c './floatversion --gt "3.4.5  2.3.6.7"'
+echo yes
+else
+echo no
+end
+
+yes
+```
+
+The use of transfer file will enable variables to  be passed:
+
+```fish
+╭─xxx@garuda in repo: floatversion on  main [$]
+╰─λ set Foo 3.1.4.1
+
+╭─xxx@garuda in repo: floatversion on  main [$]
+╰─λ set Bar 42.00
+
+╭─xxx@garuda in repo: floatversion on  main [$]
+╰─λ if bash -c './floatversion --gt "$Foo  $Bar"'
+echo yes
+else
+echo no
+end
+
+ERROR: no input found.
+
+
+╭─xxx@garuda in repo: floatversion on  main [$?] took 0s
+╰─λ echo "$Bar  $Foo" > fish-tx.txt
+
+╭─xxx@garuda in repo: floatversion on  main [$?] took 0s
+╰─λ if  bash -c './floatversion --gt "fish-tx.txt"'
+echo yes
+else
+echo no
+end
+
+yes
+```
 
 ### Limitations
 
