@@ -262,6 +262,10 @@ end
 yes
 ```
 
+### MacOS
+
+Requires Homebrew additions of Bash and of Grep
+
 ### Limitations
 
 The input must resemble [semantic versioning](http://semver.org/) to some extent. The version number must be _dot separated_. Integers are ignored.

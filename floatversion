@@ -32,6 +32,9 @@ if  grep -sqi 'C.utf8' <<< "$(locale -a)"; then export "LC_NUMERIC=C.UTF-8" ; ex
 else export "LC_NUMERIC=C" ; export "LC_COLLATE=C"
 fi
 
+# MacOS requires Homebrew additions of Bash and of Grep
+if [[ -d "/usr/local/opt/grep/libexec/gnubin" ]]; then export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH" ; fi
+
 # flag for dev analysis, set =1 to use compact version when running from script  OR -C / --compact  as $1
 CompactVersion=
 
