@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # (c) Alex Genovese  https://github.com/TuxVinyards/floatversion
 # License: MIT
@@ -17,19 +17,19 @@
 
 # http://semver.org/ versioning does not list well in file managers.
 
-# POSIX compliant initial tests:
+# POSIX and Mac/HomeBrew compliant initial Bash test:
+
+if [ ! "$(command -v bash)" ] || ! bash --version | grep bash | grep -qEo '[ ]+[5-9]+[.]' ; then
+  echo; echo "  Sorry, you need Bash, probably 5.0 or newer to run this script."; echo
+  echo "  FloatVersion has only been tested on up-to-date versions of Bash"; echo
+  echo "  Certain elements require at least ver 4.2 .... "; echo
+  if [ "$(command -v bash)" ]; then echo "  Your version: "; echo ; bash --version ; echo ; fi
+fi
 
 # Use C.UTF-8  where possible as has more locale  See https://wiki.archlinux.org/title/Locale 
 # NB if embedding, make sure that this or LC_ALL=C.UTF-8 or LC_ALL=C is present in the main script
 if  grep -sqi 'C.utf8' <<< "$(locale -a)"; then export "LC_NUMERIC=C.UTF-8" ; export "LC_COLLATE=C.UTF-8"
 else export "LC_NUMERIC=C" ; export "LC_COLLATE=C"
-fi
-
-if [ ! "$(command -v bash)" ] || [ "$(echo "$BASH_VERSION" | cut -d. -f1)" -lt 5 ]; then
-  echo; echo "  Sorry, you need Bash, probably 5.0 or newer to run this script."; echo
-  echo "  FloatVersion has only been tested on up-to-date versions of Bash"; echo
-  echo "  Certain elements require at least ver 4.2 .... "; echo
-  if [ "$(command -v bash)" ]; then echo "  Your version: "; echo ; bash --version ; echo ; fi
 fi
 
 # flag for dev analysis, set =1 to use compact version when running from script  OR -C / --compact  as $1
@@ -148,7 +148,7 @@ float_version_from_string ()  {
 
   # if input is file name, then read file,
   # sanitize and make sure that all input is a safe line separated list, or becomes one
-  [[ -e "$InputText" ]] && InputText="$(cat -A "$InputText")"
+  [[ -e "$InputText" ]] && InputText="$(cat -vet "$InputText")"
   InputText="$(tr ';' ' '  <<< "$InputText" | tr '$' ' \n' | tr ' ' '\n' | grep -E '[[:print:]]')" 
 
   if [[ ! $InputText ]]; then 
@@ -166,7 +166,7 @@ float_version_from_string ()  {
   fi
 
   if [[ $Verbose ]]; then 
-    echo; echo "Str: ($(wc -l <<< "$InputText"))"; echo "$InputText"; echo 
+    echo; echo "Str: ($(grep -c '[[:print:]]' <<< "$InputText"))"; echo "$InputText"; echo 
     printf "Filters: -F \"%s\" -S \"%s\"  -D \"%s\" \n\n"  "$FilterString" "$StartString"  "$DeleteString" 
     declare -p FilterArr ; echo
     declare -p StartArr ; echo
@@ -203,7 +203,7 @@ float_version_from_string ()  {
 
   # check
   Nums="$(grep '[[:print:]]' <<< "$Nums")"
-  NumsCount="$(wc -l <<< "$Nums")"
+  NumsCount="$(grep -c '[[:print:]]' <<< "$Nums")"
 
   [[ $Verbose ]] && { echo "Nums: ($NumsCount)"; echo "$Nums"; echo ;}
 
@@ -369,7 +369,7 @@ float_version ()  {
   [[ $GTcompare ]] && GrepFull=1
   if [[ $GrepFull ]]; then Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputText" )"
   else Nums="$(grep -Eo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputText" )"; fi ;  printf -v Nums "%s\n" "$Nums"
-  Nums="$(grep '[[:print:]]' <<< "$Nums")" ; NumsCount="$(wc -l <<< "$Nums")" 
+  Nums="$(grep '[[:print:]]' <<< "$Nums")" ; NumsCount="$(grep -c '[[:print:]]' <<< "$Nums")" 
   if [[ $GTcompare ]] && [[ "$NumsCount" != 2 ]]; then printf "\n\n  ERROR:  two floating point or semantic version values should be supplied" ; fi
   [[ ! $Nums ]] && return 1
   mapfile -t NumArrTemp  <<< "$(tr ' ' '\n' <<< "$Nums")"
