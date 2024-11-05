@@ -190,11 +190,11 @@ The full version is named differently to enable easy separation within the stand
 
 When pasting the full version, it is envisaged that it be renamed to `floatversion`, the same as with the compact one. This way any later decisions to use the compact function, or any code re-use, won't impact on anything.
 
-For testing the compact function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any script calls can then be temporarily prefixed by the control word `command` which will cause routing to that instead and will allow verbose output to be enabled.
+For testing the compact function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any script calls can then be temporarily prefixed by the control word `command` which will cause the function to re-route and will allow verbose output to be enabled.
 
 ### Use in different shells
 
-The script's Shebang will mean that direct running of the standalone is possible from the interactive terminal. 
+The script's Shebang will mean that direct running of the standalone is possible from the interactive terminal.
 
 For example:
 
