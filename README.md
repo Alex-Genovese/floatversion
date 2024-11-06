@@ -178,17 +178,25 @@ Up to Date
 
 ### Standalone
 
-Place script in a program includes folder or copy to `$PATH` eg `sudo cp floatversion /usr/bin`
+Place the script in a program includes folder or copy to `$PATH` eg `sudo cp floatversion /usr/bin`
 
-Make sure that script has execute permissions `sudo chmod +x /usr/bin/floatversion`
+Make sure that it has execute permissions `sudo chmod +x /usr/bin/floatversion`
 
-### Embedding in Bash scripts
+### Embedding
 
-In basic single scripts, the compact function is a simple copy and paste which is ready to go.  
+In single Bash scripts, adding the compact function is a simple copy and paste operation which is ready to go.
 
-The full version is named differently to enable easy separation within the standalone script. In larger projects, the required extra space won't notice and you have verbose mode ready built in.
+### Syntax
 
-When pasting the full version, it is envisaged that it be renamed to `floatversion`, the same as with the compact one. This way any later decisions to use the compact function, or any code re-use, won't impact on anything.
+Using the standard format `floatversion --options  "quoted-input-source"` will ensure that if the function is not present, the call will auto-route to floatversion as a standalone dependency.
+
+### Full version
+
+In larger projects, the required extra space for the full function won't notice and you will have verbose mode ready built in.
+
+The full version is only named differently to enable easy separation when it is being used inside the standalone script. When pasting the full version, it should be renamed to `floatversion`, the same as with the compact one. This way any later usage decisions or any code re-use won't impact on anything.
+
+### Testing
 
 For testing the compact function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any script calls can then be temporarily prefixed by the control word `command` which will cause the function to re-route and will allow verbose output to be enabled.
 
