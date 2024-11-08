@@ -40,6 +40,15 @@ CompactVersion=
 
 ##
 
+# FULL VERSION  for embedding in larger projects, has the verbose mode ready built in.
+
+# Named differently to enable easy separation when it is being used inside the standalone script. 
+# When pasting the full version, it should be renamed to 'floatversion', the same as with the compact one. 
+# This way any later usage decisions or any code re-use won't impact on anything.
+# Using the standard format floatversion --options  "quoted-input-source" will ensure that any code call
+# will auto-route to floatversion as a standalone dependency if the function is not present.
+
+
 float_version_from_string ()  {
 
 	show_help () {

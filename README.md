@@ -2,7 +2,7 @@
 
 Point separated, multi-point separated or semantic versioned numbers and versioned suffixes
 
-Use as standalone or embedded
+Use as standalone or embedded (88 lines)
 
 - Sorts to latest version, to unique or to listed entries
 
