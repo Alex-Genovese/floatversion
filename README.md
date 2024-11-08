@@ -174,6 +174,14 @@ Up to Date
 
 ```
 
+- Check GitHub Latest Release
+
+```bash
+floatversion -M "$(curl -sLf "https://github.com/TuxVinyards/qqX/releases/latest" | grep 'content="Release')"
+
+1.10.02
+```
+
 ## Install
 
 FloatVersion will run in non-bash shells but up-to-date versions of Bash, Grep and JQ should be present.
@@ -240,7 +248,7 @@ end
 yes
 ```
 
-The use of transfer file will enable variables to  be passed:
+The use of a transfer file will enable variables to be passed:
 
 ```fish
 ╭─xxx@garuda in repo: floatversion on  main [$]
@@ -248,6 +256,7 @@ The use of transfer file will enable variables to  be passed:
 
 ╭─xxx@garuda in repo: floatversion on  main [$]
 ╰─λ set Bar 42.00
+
 
 ╭─xxx@garuda in repo: floatversion on  main [$]
 ╰─λ if bash -c './floatversion --gt "$Foo  $Bar"'
@@ -258,6 +267,8 @@ end
 
 ERROR: no input found.
 
+
+Output vars to file and read file instead: 
 
 ╭─xxx@garuda in repo: floatversion on  main [$?] took 0s
 ╰─λ echo "$Bar  $Foo" > fish-tx.txt
