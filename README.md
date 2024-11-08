@@ -176,6 +176,8 @@ Up to Date
 
 ## Install
 
+FloatVersion will run in non-bash shells but up-to-date versions of Bash, Grep and JQ should be present.
+
 ### Standalone
 
 Place the script in a program includes folder or copy to `$PATH` eg `sudo cp floatversion /usr/bin`
@@ -272,7 +274,7 @@ yes
 
 ### MacOS
 
-Requires Homebrew additions of Bash and of Grep
+Requires Homebrew versions of Bash and Grep and also requires JQ.
 
 ### Limitations
 
