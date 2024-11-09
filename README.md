@@ -177,20 +177,31 @@ Up to Date
 - Check GitHub Latest Release
 
 ```bash
-floatversion -M "$(curl -sLf "https://github.com/TuxVinyards/qqX/releases/latest" | grep 'content="Release')"
+floatversion -M "$(curl -sLf "https://github.com/TuxVinyards/floatversion/releases/latest" | grep 'content="Release')"
 
-1.10.02
+1.0.0
 ```
 
 ## Install
 
 FloatVersion will run in non-bash shells but up-to-date versions of Bash, Grep and JQ should be present.
 
+MacOS requires Homebrew versions of Bash and Grep and also requires JQ.
+
 ### Standalone
 
 Place the script in a program includes folder or copy to `$PATH` eg `sudo cp floatversion /usr/bin`
 
 Make sure that it has execute permissions `sudo chmod +x /usr/bin/floatversion`
+
+The following simple wrapper can be used to call an includes folder full script:
+
+```bash
+ExampleProgFolder="/usr/share/my-prog/utils"
+floatversion () { 
+  "$ExampleProgFolder/floatversion" "$@" 
+}
+```
 
 ### Embedding
 
@@ -209,6 +220,12 @@ The full version is only named differently to enable easy separation when it is 
 ### Testing
 
 For testing the compact function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any script calls can then be temporarily prefixed by the control word `command` which will cause the function to re-route and will allow verbose output to be enabled.
+
+### Updates
+
+The script snippets, above, show how to check `floatversion` releases and how to compare versions.
+
+Alternatively see GitHub's dependabot docs for setting up alerts ....
 
 ### Use in different shells
 
@@ -282,10 +299,6 @@ end
 
 yes
 ```
-
-### MacOS
-
-Requires Homebrew versions of Bash and Grep and also requires JQ.
 
 ### Limitations
 
