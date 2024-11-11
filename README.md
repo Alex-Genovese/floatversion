@@ -1,6 +1,6 @@
 # Extracts and sorts software release numbers
 
-Point separated, multi-point separated or semantic versioned numbers and versioned suffixes
+Point separated, multi-point separated or [semantic](http://semver.org/) versioned and versioned suffixed
 
 Use as standalone or embedded (~90 lines)
 
