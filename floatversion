@@ -7,15 +7,14 @@
 # and other common variations upon, from a given string or text list
 
 # Script outputs as true/false test, as single item, or as space or line separated list. 
-# If function (full or compact) is embedded, produces optional array '${fvOutputArr[*]}'
-
 # Sorts to unique or listed entries, or to latest version in std numeric or sem. ver. 
 
-# Uses'jq' for sorting suffixes, unless specified. 
-# Neither are perfect but tests show jq method to be slightly better than sort -V 
-# Also as various 'version-sort' algorithms may exist, sort -V may not be consistent.
+# Up-to-date versions of Bash, Grep and JQ should be present.
+# MacOS requires Homebrew versions of Bash and Grep and also requires JQ
+# FloatVersion uses'jq' for sorting suffixes, unless specified.
 
-# http://semver.org/ versioning does not list well in file managers.
+# Various versioning systems exist. Padded versioning lists better in file managers.  
+# See https://en.wikipedia.org/wiki/Software_versioning  and  http://semver.org/ 
 
 # POSIX and Mac/HomeBrew compliant initial Bash test:
 
@@ -35,8 +34,14 @@ fi
 # MacOS requires Homebrew additions of Bash and of Grep
 if [[ -d "/usr/local/opt/grep/libexec/gnubin" ]]; then export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH" ; fi
 
-# flag for dev analysis, set =1 to use compact version when running from script  OR -C / --compact  as $1
+# Flag for dev analysis, set =1 to use compact version when running from script  OR -C / --compact  as $1
 CompactVersion=
+
+# Optional output array:
+# When embedding in Bash scripts, the optional array '${fvOutputArr[*]}' is by default set as global
+# In standalone full mode, setting a path here will enable output in plain text column format
+# to a transfer file eg '/tmp/fv-arr.txt' that can be be mapped by most scripts
+FvArrFilePath=
 
 ##
 
@@ -44,9 +49,11 @@ CompactVersion=
 
 # Named differently to enable easy separation when it is being used inside the standalone script. 
 # When pasting the full version, it should be renamed to 'floatversion', the same as with the compact one. 
-# This way any later usage decisions or any code re-use won't impact on anything.
-# Using the standard format floatversion --options  "quoted-input-source" will ensure that any code call
-# will auto-route to floatversion as a standalone dependency if the function is not present.
+
+# Using the standard format of < floatversion --options  "quoted-input-source" > will ensure that any code call
+# will auto-route to floatversion as a standalone dependency if the function is not present,
+# or if later switching to compact, or if wanting to re-use code elsewhere.
+
 
 
 float_version_from_string ()  {
@@ -331,6 +338,10 @@ float_version_from_string ()  {
     printf "%s\n" "${fvOutputArr[@]}"
   else
     echo "${fvOutputArr[-1]}"
+  fi
+
+  if [[ $FvArrFilePath ]]; then
+    printf "%s\n" "${fvOutputArr[@]}" > "$FvArrFilePath"
   fi
 
 }

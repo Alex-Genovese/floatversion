@@ -2,7 +2,7 @@
 
 Point separated, multi-point separated or semantic versioned numbers and versioned suffixes
 
-Use as standalone or embedded (88 lines)
+Use as standalone or embedded (~90 lines)
 
 - Sorts to latest version, to unique or to listed entries
 
@@ -194,7 +194,9 @@ Place the script in a program includes folder or copy to `$PATH` eg `sudo cp flo
 
 Make sure that it has execute permissions `sudo chmod +x /usr/bin/floatversion`
 
-The following simple wrapper can be used to call an includes folder full script:
+The standalone may be used by non-bash shells but Bash must be present on the system.
+
+The following simple wrapper can be used in Bash to call an includes folder full script:
 
 ```bash
 ExampleProgFolder="/usr/share/my-prog/utils"
@@ -205,21 +207,23 @@ floatversion () {
 
 ### Embedding
 
-In single Bash scripts, adding the compact function is a simple copy and paste operation which is ready to go.
+This method is suitable only for Bash scripts.
 
-### Syntax
-
-Using the standard format `floatversion --options  "quoted-input-source"` will ensure that if the function is not present, the call will auto-route to floatversion as a standalone dependency.
-
-### Full version
+Single scripts can add the compact function in a simple copy and paste operation which is ready to go.
 
 In larger projects, the required extra space for the full function won't notice and you will have verbose mode ready built in.
 
-The full version is only named differently to enable easy separation when it is being used inside the standalone script. When pasting the full version, it should be renamed to `floatversion`, the same as with the compact one. This way any later usage decisions or any code re-use won't impact on anything.
+The full version is named differently inside the standalone script to enable easy separation. When pasting the full version, it should be renamed to `floatversion`, the same as with the compact one.
+
+Using the standard syntax `floatversion --options  "quoted-input-source"` will ensure that if a function is not present, the call will re-route to floatversion as a standalone dependency, also that any later usage changes or any code re-use won't have negative impact.
+
+### Output Array
+
+If using the standalone, the script can be optionally set to output a transfer file which is easily mappable by most shells. When embedding, the optional array `${fvOutputArr[*]}` is by default present as global.
 
 ### Testing
 
-For testing the compact function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any script calls can then be temporarily prefixed by the control word `command` which will cause the function to re-route and will allow verbose output to be enabled.
+For testing the _compact_ function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any script calls can then be temporarily prefixed by the control word `command` which will cause the function to re-route and will allow verbose output to be enabled.
 
 ### Updates
 
@@ -239,7 +243,7 @@ For example:
 /usr/bin/fish
 
 ╭─xxx@garuda in repo: floatversion on  main [$]
-╰─λ ./floatversion -F 10 -M -n  non-pad-test.txt
+╰─λ floatversion -F 10 -M -n  non-pad-test.txt
 1.10.3
 ```
 
@@ -247,7 +251,7 @@ To include calls to `floatversion` standalone script from within an actual fishs
 
 ```fish
 ╭─xxx@garuda in repo: floatversion on  main [$] took 0s
-╰─λ if bash -c './floatversion --gt "1.4.5  2.3.6.7"'
+╰─λ if bash -c 'floatversion --gt "1.4.5  2.3.6.7"'
 echo yes
 else
 echo no
@@ -256,7 +260,7 @@ end
 no
 
 ╭─xxx@garuda in repo: floatversion on  main [$] took 0s
-╰─λ if bash -c './floatversion --gt "3.4.5  2.3.6.7"'
+╰─λ if bash -c 'floatversion --gt "3.4.5  2.3.6.7"'
 echo yes
 else
 echo no
@@ -276,7 +280,7 @@ The use of a transfer file will enable variables to be passed:
 
 
 ╭─xxx@garuda in repo: floatversion on  main [$]
-╰─λ if bash -c './floatversion --gt "$Foo  $Bar"'
+╰─λ if bash -c 'floatversion --gt "$Foo  $Bar"'
 echo yes
 else
 echo no
@@ -291,7 +295,7 @@ Output vars to file and read file instead:
 ╰─λ echo "$Bar  $Foo" > fish-tx.txt
 
 ╭─xxx@garuda in repo: floatversion on  main [$?] took 0s
-╰─λ if  bash -c './floatversion --gt "fish-tx.txt"'
+╰─λ if  bash -c 'floatversion --gt "fish-tx.txt"'
 echo yes
 else
 echo no
@@ -302,6 +306,6 @@ yes
 
 ### Limitations
 
-The input must resemble [semantic versioning](http://semver.org/) to some extent. The version number must be _dot separated_. Integers are ignored.
+The input _must resemble_ semantic versioning to _some_ extent. The version number must be _dot separated_. Integers are ignored.
 
-Garbage in, Garbage out.  Some pre-filtering may be required.  
+Some pre-filtering may be required.  
