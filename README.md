@@ -269,7 +269,7 @@ end
 ERROR: no input found.
 
 
-Output vars to file and read file instead: 
+# Output vars to file and read file instead: 
 
 ╭─xxx@garuda in repo: floatversion on  main [$?] took 0s
 ╰─λ echo "$Bar  $Foo" > fish-tx.txt
