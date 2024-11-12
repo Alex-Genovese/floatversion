@@ -174,12 +174,16 @@ Up to Date
 
 ```
 
-- Check GitHub Latest Release
+- Check GitHub Latest Release or Tag
 
 ```bash
 floatversion -M "$(curl -sLf "https://github.com/TuxVinyards/floatversion/releases/latest" | grep 'content="Release')"
 
 1.0.0
+
+floatversion -M "$(curl -sf https://github.com/HoloISO/releases/tags | grep 'releases/tag')"
+
+1.5
 ```
 
 ## Install

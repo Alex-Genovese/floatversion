@@ -1,0 +1,6 @@
+
+# curl -sI "https://sourceforge.net/projects/mx-linux/files/latest/download" | grep -i 'location:'
+location: https://downloads.sourceforge.net/project/mx-linux/Snapshots/MX-23.4_October_x64.iso?ts=gAAAAABnMxZgUG5aQg2_OAiaQMcO7a_b7vggvDIUWBFvUp7GL_4dHuU9aWP0fw89kgCFCprCpfq-Tg3x_z4UEgGcae_wX0uBug%3D%3D&use_mirror=netcologne&r=
+
+# curl -sLf "https://sourceforge.net/projects/spirallinux/files" | grep 'latest/download'
+<a class="button green big-text download with-sub-label extra-wide" href="/projects/spirallinux/files/latest/download" title="/12.231120/SpiralLinux_Plasma_12.231120_x86-64.iso:  released on 2023-11-20 03:26:42 UTC">
