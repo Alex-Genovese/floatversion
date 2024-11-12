@@ -17,11 +17,11 @@
 # See https://en.wikipedia.org/wiki/Software_versioning  and  http://semver.org/ 
 
 # POSIX and Mac/HomeBrew compliant initial Bash test:
-
 if [ ! "$(command -v bash)" ] || ! bash --version | grep bash | grep -qEo '[ ]+[5-9]+[.]' ; then
   echo; echo "  Sorry, you need Bash, probably 5.0 or newer to run this script."; echo
   echo "  FloatVersion has only been tested on up-to-date versions of Bash"; echo
   echo "  Certain elements require at least ver 4.2 .... "; echo
+  if [ "$(uname -o)" = "Darwin" ]; then echo "  An update is needed via HomeBrew"; echo ; fi
   if [ "$(command -v bash)" ]; then echo "  Your version: "; echo ; bash --version ; echo ; fi
 fi
 
@@ -31,11 +31,14 @@ if  grep -sqi 'C.utf8' <<< "$(locale -a)"; then export "LC_NUMERIC=C.UTF-8" ; ex
 else export "LC_NUMERIC=C" ; export "LC_COLLATE=C"
 fi
 
-# MacOS requires Homebrew additions of Bash and of Grep
+# MacOS requires Homebrew additions of Bash and of Grep. Also needs JQ.
 if [[ "$(uname -o)" == "Darwin" ]]; then 
   if [[ ! -d "/usr/local/opt/grep/libexec/gnubin" ]]; then 
     echo; echo "  Sorry, you need to update 'grep' via HomeBrew to run this script."; echo
   elif ! grep -q 'gnubin' <<< "$PATH" ; then export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"
+  fi
+  if [[ ! -d "/usr/local/Cellar/jq" ]]; then 
+    echo; echo "  Sorry, you need to add 'jq' via HomeBrew to run this script."; echo
   fi
 fi
 
