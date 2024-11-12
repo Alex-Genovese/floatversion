@@ -32,7 +32,12 @@ else export "LC_NUMERIC=C" ; export "LC_COLLATE=C"
 fi
 
 # MacOS requires Homebrew additions of Bash and of Grep
-if [[ -d "/usr/local/opt/grep/libexec/gnubin" ]]; then export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH" ; fi
+if [[ "$(uname -o)" == "Darwin" ]]; then 
+  if [[ ! -d "/usr/local/opt/grep/libexec/gnubin" ]]; then 
+    echo; echo "  Sorry, you need to update 'grep' via HomeBrew to run this script."; echo
+  elif ! grep -q 'gnubin' <<< "$PATH" ; then export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"
+  fi
+fi
 
 # Flag for dev analysis, set =1 to use compact version when running from script  OR -C / --compact  as $1
 CompactVersion=
@@ -83,7 +88,7 @@ float_version_from_string ()  {
 
   Without options, produces a single sorted string of all unique items found
   Filters output as string, column or max. Post-output grep requires columns.
-  
+
   Tests show 'jq' sort methods as more reliable than 'sort -V' esp. with alpha suffixes
   All cases, returns false if none
   

@@ -105,9 +105,9 @@ floatversion  "floats.txt"
 - Compare versions
 
 ```bash
-Previous="$(floatversion -M "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" )"
+LatestAchive="$(floatversion -M "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" )"
 Current="$(cat /etc/debian_version)"
-if floatversion --gt  "$Current $Previous" ; then echo "Up to Date"; fi
+if floatversion --gt  "$Current $LatestAchive" ; then echo "Up to Date"; fi
 Up to Date
 ```
 
@@ -181,7 +181,7 @@ For testing the _compact_ function inside scripts, it is recommended that a $PAT
 - Show _verbose_ algorithmics
 
 ```bash
-if floatversion --verbose --gt "$Current $Previous"; then echo "Up to Date"; fi
+if floatversion --verbose --gt "$Current $LatestAchive"; then echo "Up to Date"; fi
 
 Str:
 12.7 12.6.0
