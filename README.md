@@ -10,9 +10,6 @@ Use as standalone or embedded (~90 lines)
 floatversion -M "$(curl -sf "https://github.com/TuxVinyards/floatversion/releases" | grep 's/tag')"
 1.0.0
 
-floatversion -M "$(curl -sf https://github.com/HoloISO/releases/tags | grep 's/tag')"
-1.5
-
 floatversion -r "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 9.1.1  9.1.0  9.0.3  8.2.7  7.2.14  
 
