@@ -26,7 +26,7 @@ if [ ! "$(command -v bash)" ] || ! bash --version | grep bash | grep -qEo '[ ]+[
 fi
 
 # Use C.UTF-8  where possible as has more locale  See https://wiki.archlinux.org/title/Locale 
-# NB if embedding, make sure that this or LC_ALL=C.UTF-8 or LC_ALL=C is present in the main script
+# NB if EMBEDDING, make sure that this or LC_ALL=C.UTF-8 or LC_ALL=C is present in the main script
 if  grep -sqi 'C.utf8' <<< "$(locale -a)"; then export "LC_NUMERIC=C.UTF-8" ; export "LC_COLLATE=C.UTF-8"
 else export "LC_NUMERIC=C" ; export "LC_COLLATE=C"
 fi

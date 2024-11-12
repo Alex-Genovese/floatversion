@@ -217,6 +217,8 @@ The full version is named differently inside the standalone script to enable eas
 
 Using the standard syntax `floatversion --options  "quoted-input-source"` will ensure that if a function is not present, the call will re-route to floatversion as a standalone dependency, also that any later usage changes or any code re-use won't have negative impact.
 
+Locale settings should be implemented as outlined in the `floatversion` script header.
+
 ### Output Array
 
 If using the standalone, the script can be optionally set to output a transfer file which is easily mappable by most shells. When embedding, the optional array `${fvOutputArr[*]}` is by default present as global.
