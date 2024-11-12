@@ -4,36 +4,19 @@ Point separated, multi-point separated or [semantic](http://semver.org/) version
 
 Use as standalone or embedded (~90 lines)
 
-- Sorts to latest version, to unique or to listed entries
-
-```bash
-curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
-271
-
-floatversion -M "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" 
-12.6.0
-
-floatversion --rev -M "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" 
-3.0
-
-floatversion "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" 
-3.0  3.1  4.0  5.0.0  5.0.1  5.0.2  5.0.3  5.0.4  5.0.5  5.0.6  5.0.7  5.0.8  5.0.9  5.0.10  6.0.0  6.0.1  6.0.2  6.0.2.1  6.0.3  6.0.4  6.0.5  6.0.6  6.0.7  6.0.8  6.0.9  6.0.10  7.0.0  7.1.0  7.2.0  7.3.0  7.4.0  7.5.0  7.6.0  7.7.0  7.8.0  7.9.0  7.10.0  7.11.0  8.0.0  8.1.0  8.2.0  8.3.0  8.4.0  8.5.0  8.6.0  8.7.0  8.7.1  8.8.0  8.9.0  8.10.0  8.11.0  8.11.1  9.0.0  9.0.1  9.1.0  9.2.0  9.2.1  9.3.0  9.4.0  9.5.0  9.6.0  9.7.0  9.8.0  9.9.0  9.10.0  9.11.0  9.12.0  9.13.0  10.0.0  10.1.0  10.2.0  10.3.0  10.4.0  10.5.0  10.6.0  10.7.0  10.8.0  10.9.0  10.10.0  10.11.0  10.12.0  10.13.0  11.0.0  11.1.0  11.2.0  11.3.0  11.4.0  11.5.0  11.6.0  11.7.0  11.8.0  11.9.0  11.10.0  11.11.0  12.0.0  12.1.0  12.2.0  12.3  12.3.0  12.4.0  12.5.0  12.6.0  
-
-```
-
 - Check GitHub Latest Release or Tag
 
 ```bash
-floatversion -M "$(curl -sLf "https://github.com/TuxVinyards/floatversion/releases/latest" | grep 'content="Release')"
+floatversion -M "$(curl -sf "https://github.com/TuxVinyards/floatversion/releases" | grep 's/tag')"
 1.0.0
 
-floatversion -M "$(curl -sf https://github.com/HoloISO/releases/tags | grep 'releases/tag')"
+floatversion -M "$(curl -sf https://github.com/HoloISO/releases/tags | grep 's/tag')"
 1.5
 ```
 
-- Outputs as true/false test, as single item, or as space or line separated list.
+- Output as true/false test, as single item, or as space or line separated list.
 
-- Filters for include, exclude, starts with, and reverse
+- Filter for include, exclude, starts with, and reverse
 
 ```txt
   floatversion --options  "quoted-input-source"
@@ -54,78 +37,46 @@ floatversion -M "$(curl -sf https://github.com/HoloISO/releases/tags | grep 'rel
   -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
   -g | --gt           A > B, returns true/false -g "A B" (.nums or sem ver, for -lt use B A)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
-       --sort-v       use system sort -V if available (& if jq methods are causing problems)
+       --sort-v       use sort -V (if present) in preference to the default jq methods
        --no-svb       no falling back to 'jq' if 'sort -V' is unavailable, show error instead
 
   Without options, produces a single sorted string of all unique items found
   Filters output as string, column or max. Post-output grep requires columns.
+
   Tests show 'jq' sort methods as more reliable than 'sort -V' esp. with alpha suffixes
   All cases, returns false if none
 ```
 
-## JQ sorting
-
-Testing shows the JQ sort formula is more reliable.
-
-JQ:
+- Sort to latest version, to unique or to listed entries
 
 ```bash
-floatversion  -f -S "1.2" "non-pad-test.txt" 
-1.2.0-beta.2  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.2.3  1.22.3-rc1  1.22.3
+curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
+271
 
-floatversion  -f -S "1.2" -M "non-pad-test.txt" 
-1.22.3
+# of the 271 entries the following are unique:
+floatversion "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" 
+3.0  3.1  4.0  5.0.0  5.0.1  5.0.2  5.0.3  5.0.4  5.0.5  5.0.6  5.0.7  5.0.8  5.0.9  5.0.10  6.0.0  6.0.1  6.0.2  6.0.2.1  6.0.3  6.0.4  6.0.5  6.0.6  6.0.7  6.0.8  6.0.9  6.0.10  7.0.0  7.1.0  7.2.0  7.3.0  7.4.0  7.5.0  7.6.0  7.7.0  7.8.0  7.9.0  7.10.0  7.11.0  8.0.0  8.1.0  8.2.0  8.3.0  8.4.0  8.5.0  8.6.0  8.7.0  8.7.1  8.8.0  8.9.0  8.10.0  8.11.0  8.11.1  9.0.0  9.0.1  9.1.0  9.2.0  9.2.1  9.3.0  9.4.0  9.5.0  9.6.0  9.7.0  9.8.0  9.9.0  9.10.0  9.11.0  9.12.0  9.13.0  10.0.0  10.1.0  10.2.0  10.3.0  10.4.0  10.5.0  10.6.0  10.7.0  10.8.0  10.9.0  10.10.0  10.11.0  10.12.0  10.13.0  11.0.0  11.1.0  11.2.0  11.3.0  11.4.0  11.5.0  11.6.0  11.7.0  11.8.0  11.9.0  11.10.0  11.11.0  12.0.0  12.1.0  12.2.0  12.3  12.3.0  12.4.0  12.5.0  12.6.0  
+
+# the latest is:
+floatversion -M "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" 
+12.6.0
+
+# the oldest is:
+floatversion --rev -M "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" 
+3.0
 ```
 
-Gnu `sort -V`
+- Starts with
 
 ```bash
-floatversion --sort-v  -f -S "1.2" "non-pad-test.txt" 
-1.2.0-beta.2  1.2.3  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.22.3  1.22.3-rc1  
-
-floatversion --sort-v  -f -S "1.2" -M "non-pad-test.txt" 
-1.22.3-rc1
-```
-
-## Move
-
-- From this:
-  
-```bash
-curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | grep '11.' | wc -l
-82
-
-curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | grep -E ^'11.' | wc -l
-0
-
-curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | grep -E '11.'
-   <tr class="odd"><td class="indexcolicon"><a href="3.0_r0/"><img src="/icons2/folder.png" alt="[DIR]"></a></td><td class="indexcolname"><a href="3.0_r0/">3.0_r0/</a></td><td class="indexcollastmod">2011-02-16 23:03  </td><td class="indexcolsize">  - </td></tr>
-   <tr class="even"><td class="indexcolicon"><a href="3.0_r1/"><img src="/icons2/folder.png" alt="[DIR]"></a></td><td class="indexcolname"><a href="3.0_r1/">3.0_r1/</a></td><td class="indexcollastmod">2011-02-16 23:05  </td><td class="indexcolsize">  - </td></tr>
-   <tr class="odd"><td class="indexcolicon"><a href="3.0_r2/"><img src="/icons2/folder.png" alt="[DIR]"></a></td><td class="indexcolname"><a href="3.0_r2/">3.0_r2/</a></td><td class="indexcollastmod">2011-02-16 23:05  </td><td class="indexcolsize">  - </td></tr>
-   <tr class="even"><td class="indexcolicon"><a href="3.0_r3/"><img src="/icons2/folder.png" alt="[DIR]"></a></td><td class="indexcolname"><a href="3.0_r3/">3.0_r3/</a></td><td class="indexcollastmod">2011-02-16 23:05  </td><td class="indexcolsize">  - </td></tr>
-   <tr class="odd"><td class="indexcolicon"><a href="3.0_r4/"><img src="/icons2/folder.png" alt="[DIR]"></a></td><td class="indexcolname"><a href="3.0_r4/">3.0_r4/</a></td><td class="indexcollastmod">2016-11-04 23:29  </td><td class="indexcolsize">  - </td></tr>
-   <tr class="even"><td class="indexcolicon"><a href="3.0_r5/"><img src="/icons2/folder.png" alt="[DIR]"></a></td><td class="indexcolname"><a href="3.0_r5/">3.0_r5/</a></td><td class="indexcollastmod">2016-11-04 23:21  </td><td class="indexcolsize">  - </td></tr>
-   <tr class="odd"><td class="indexcolicon"><a href="3.0_r6/"><img src="/icons2/folder.png" alt="[DIR]"></a></td><td class="indexcolname"><a href="3.0_r6/">3.0_r6/</a></td><td class="indexcollastmod">2016-11-05 01:35  </td><td class="indexcolsize">  - </td></tr>
-   <tr class="even"><td class="indexcolicon"><a href="3.1_r0/"><img src="/icons2/folder.png" alt="[DIR]"></a></td><td class="indexcolname"><a href="3.1_r0/">3.1_r0/</a></td><td class="indexcollastmod">2016-11-02 20:08  </td><td class="indexcolsize">  - </td></tr>
-   <tr class="odd"><td class="indexcolicon"><a href="3.1_r0a/"><img src="/icons2/folder.png" alt="[DIR]"></a></td><td class="indexcolname"><a href="3.1_r0a/">3.1_r0a/</a></td><td class="indexcollastmod">2016-11-02 20:08  </td><td class="indexcolsize">  - </td></tr>...
-
-   82 etc etc
-
-```
-
-- To this:
-
-```bash
-floatversion -r -S 11 "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')"
+floatversion -r --starts 11  "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')"
 11.11.0  11.10.0  11.9.0  11.8.0  11.7.0  11.6.0  11.5.0  11.4.0  11.3.0  11.2.0  11.1.0  11.0.0
 
-floatversion -r -S 6 "$(curl -sLf "http://mirror-master.dragonflybsd.org/iso-images" | grep -Eo '"dfly-x86_64-.*_REL.iso.bz2"')"
+floatversion -r --starts 6  "$(curl -sLf "http://mirror-master.dragonflybsd.org/iso-images" | grep -Eo '"dfly-x86_64-.*_REL.iso.bz2"')"
 6.4.0  6.2.2  6.2.1  6.0.1  6.0.0  
 ```
 
-## With
-
-- Multiple filters
+- Keywords +/-
 
 ```bash
 floatversion -f "non-pad-test.txt" 
@@ -141,7 +92,7 @@ floatversion -f -F live -M "non-pad-test.txt"
 1.2.3-live
 ```
 
-- List as standard numeric or semantic
+- Standard numeric or semantic ordering
 
 ```bash
  floatversion --num "floats.txt" 
@@ -156,11 +107,78 @@ floatversion  "floats.txt"
 ```bash
 Previous="$(floatversion -M "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" )"
 Current="$(cat /etc/debian_version)"
-if floatversion -g "$Current $Previous"; then echo "Up to Date"; fi
+if floatversion --gt  "$Current $Previous" ; then echo "Up to Date"; fi
 Up to Date
 ```
 
-- Show verbose algorithmics
+- Reliable JQ sort formula
+
+```bash
+# JQ:
+floatversion  -f -S "1.2" "non-pad-test.txt" 
+1.2.0-beta.2  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.2.3  1.22.3-rc1  1.22.3
+
+# latest:
+floatversion --max -f -S "1.2"  "non-pad-test.txt" 
+1.22.3
+```
+
+```bash
+# sort -V
+floatversion --sort-v  -f -S "1.2" "non-pad-test.txt" 
+1.2.0-beta.2  1.2.3  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.22.3  1.22.3-rc1  
+
+# incorrect:
+floatversion --max --sort-v -f -S "1.2" "non-pad-test.txt" 
+1.22.3-rc1
+```
+
+## Easy Install
+
+FloatVersion will run in Bash or in Non-Bash shells.
+
+Requires up-to-date versions of Bash, Grep and JQ. On MacOS install these via Homebrew.
+
+### Standalone
+
+Copy to `$PATH` eg `sudo cp floatversion /usr/bin`  or place the script in with your program.
+
+Make sure that it has execute permissions `sudo chmod +x /usr/bin/floatversion`
+
+The following simple wrapper can be used in Bash to call an includes folder full script:
+
+```bash
+ExampleProgFolder="/usr/share/my-prog/utils"
+floatversion () { 
+  "$ExampleProgFolder/floatversion" "$@" 
+}
+```
+
+For Non-Bash, see below
+
+### Embedding
+
+This method is suitable only for Bash scripts.
+
+Single scripts can add the compact function in a simple copy and paste operation which is ready to go.
+
+In larger projects, the required extra space for the full function won't notice and you will have verbose mode ready built in.
+
+The full version is named differently inside the standalone script to enable easy separation. When pasting the full version, it should be renamed to `floatversion`, the same as with the compact one.
+
+Using the standard syntax `floatversion --options  "quoted-input-source"` will ensure that if a function is not present, the call will re-route to floatversion as a standalone dependency, also that any later usage changes or any code re-use won't have negative impact.
+
+_Locale settings_ should be implemented as outlined in the `floatversion` script header.
+
+### Output Array
+
+The standalone script can be set to output a transfer file which is easily mappable by most shells. When embedding, the array `${fvOutputArr[*]}` is by default present as global.
+
+### Testing
+
+For testing the _compact_ function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any Bash script calls can then be temporarily prefixed by the control word `command` which will cause the function to re-route and will allow verbose output to be enabled.
+
+- Show _verbose_ algorithmics
 
 ```bash
 if floatversion --verbose --gt "$Current $Previous"; then echo "Up to Date"; fi
@@ -183,51 +201,6 @@ true
 Up to Date
 
 ```
-
-## Install
-
-FloatVersion will run in non-bash shells but up-to-date versions of Bash, Grep and JQ should be present.
-
-MacOS requires Homebrew versions of Bash and Grep and also requires JQ.
-
-### Standalone
-
-Place the script in a program includes folder or copy to `$PATH` eg `sudo cp floatversion /usr/bin`
-
-Make sure that it has execute permissions `sudo chmod +x /usr/bin/floatversion`
-
-The standalone may be used by non-bash shells but Bash must be present on the system.
-
-The following simple wrapper can be used in Bash to call an includes folder full script:
-
-```bash
-ExampleProgFolder="/usr/share/my-prog/utils"
-floatversion () { 
-  "$ExampleProgFolder/floatversion" "$@" 
-}
-```
-
-### Embedding
-
-This method is suitable only for Bash scripts.
-
-Single scripts can add the compact function in a simple copy and paste operation which is ready to go.
-
-In larger projects, the required extra space for the full function won't notice and you will have verbose mode ready built in.
-
-The full version is named differently inside the standalone script to enable easy separation. When pasting the full version, it should be renamed to `floatversion`, the same as with the compact one.
-
-Using the standard syntax `floatversion --options  "quoted-input-source"` will ensure that if a function is not present, the call will re-route to floatversion as a standalone dependency, also that any later usage changes or any code re-use won't have negative impact.
-
-Locale settings should be implemented as outlined in the `floatversion` script header.
-
-### Output Array
-
-If using the standalone, the script can be optionally set to output a transfer file which is easily mappable by most shells. When embedding, the optional array `${fvOutputArr[*]}` is by default present as global.
-
-### Testing
-
-For testing the _compact_ function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any script calls can then be temporarily prefixed by the control word `command` which will cause the function to re-route and will allow verbose output to be enabled.
 
 ### Updates
 

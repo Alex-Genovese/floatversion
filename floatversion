@@ -78,11 +78,12 @@ float_version_from_string ()  {
   -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
   -g | --gt           A > B, returns true/false -g \"A B\" (.nums or sem ver)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
-       --sort-v       use system sort -V if available (& if jq methods are causing problems)
+       --sort-v       use sort -V (if present) in preference to the default jq methods
        --no-svb       no falling back to 'jq' if 'sort -V' is unavailable, show error instead
 
   Without options, produces a single sorted string of all unique items found
   Filters output as string, column or max. Post-output grep requires columns.
+  
   Tests show 'jq' sort methods as more reliable than 'sort -V' esp. with alpha suffixes
   All cases, returns false if none
   
