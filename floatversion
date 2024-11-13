@@ -13,8 +13,12 @@
 # MacOS requires Homebrew versions of Bash and Grep and also requires JQ
 # FloatVersion uses'jq' for sorting suffixes, unless specified.
 
-# Various versioning systems exist. Padded versioning lists better in file managers.  
+# Various versioning systems exist: 
 # See https://en.wikipedia.org/wiki/Software_versioning  and  http://semver.org/ 
+
+# For this script: x.xx.xx-suffix > major.minor.point and with optionals as -beta.01 etc
+# Non-major numbers are padded to 2dp to make easier reading in file managers
+# Current Version 1.0.0  > set locally in function case statements
 
 # POSIX and Mac/HomeBrew compliant initial Bash test:
 if [ ! "$(command -v bash)" ] || ! bash --version | grep bash | grep -qEo '[ ]+[5-9]+[.]' ; then
@@ -54,15 +58,11 @@ FvArrFilePath=
 ##
 
 # FULL VERSION  for embedding in larger projects, has the verbose mode ready built in.
-
 # Named differently to enable easy separation when it is being used inside the standalone script. 
 # When pasting the full version, it should be renamed to 'floatversion', the same as with the compact one. 
-
 # Using the standard format of < floatversion --options  "quoted-input-source" > will ensure that any code call
 # will auto-route to floatversion as a standalone dependency if the function is not present,
 # or if later switching to compact, or if wanting to re-use code elsewhere.
-
-
 
 float_version_from_string ()  {
 
@@ -367,7 +367,6 @@ float_version ()  {
   local InputText= ; local Nums= ; local NumsCount= ; local FilterString= ; local StartString= ; local DeleteString= ; local GTcompare=
   local UseSortV= ; local NoSortVfallback= ; declare -a NumArrTemp ; declare -a NumArrSorted ; declare -a SelectArrTemp 
   declare -a FilterArr ; declare -a StartArr ; declare -a DeleteArr ; declare -ga fvOutputArr 
-
   while [[ "$1" ]] ; do
     case "$1" in 
       -c|--col)     ShowAsCol=1 ; shift ;;
