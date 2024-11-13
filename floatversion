@@ -17,7 +17,7 @@
 # See https://en.wikipedia.org/wiki/Software_versioning  and  http://semver.org/ 
 
 # For this script: x.xx.xx-suffix > major.minor.point and with optionals as -beta.01 etc
-# Non-major numbers are padded to 2dp to make easier reading in file managers
+# Non-major non-zero numbers are padded to 2dp to make easier reading in file managers
 # Current Version 1.0.0  > set locally in function case statements
 
 # POSIX and Mac/HomeBrew compliant initial Bash test:
