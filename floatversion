@@ -93,7 +93,7 @@ float_version_from_string ()  {
   Filters output as string, column or max. Post-output grep requires columns.
 
   Tests show 'jq' sort methods as more reliable than 'sort -V' esp. with alpha suffixes
-  All cases, returns false if none
+  All cases, returns false if none.  Direct \'2>/dev/null\' to quieten messages.
   
   License: MIT  Copyright (c) Alex Genovese  
   Further Usage/Help/Details @ https://github.com/TuxVinyards/floatversion

@@ -47,7 +47,7 @@ floatversion -M "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
   Filters output as string, column or max. Post-output grep requires columns.
 
   Tests show 'jq' sort methods as more reliable than 'sort -V' esp. with alpha suffixes
-  All cases, returns false if none
+  All cases, returns false if none.  Direct '2>/dev/null' to quieten messages.
 ```
 
 - Sort to latest version, to unique or to listed entries
