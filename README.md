@@ -227,7 +227,7 @@ floatversion -V
 
 CurrentVersion: 1.1.0
 
-Checking for updates....   LatestVersion: 1.0.01  Up-to-Date 
+Checking for updates....   LatestVersion: 1.1.0  Up-to-Date 
 
 (c) Alex Genovese  https://github.com/TuxVinyards/floatversion 
 
