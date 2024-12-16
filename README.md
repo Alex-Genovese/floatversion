@@ -4,11 +4,11 @@ Point separated, multi-point separated or [semantic](http://semver.org/) version
 
 Use as standalone or embedded (~90 lines)
 
-- Check GitHub Latest Release or Tag
+## Check GitHub Latest Release or Tag
 
 ```bash
 floatversion -M "$(curl -sf "https://github.com/TuxVinyards/floatversion/releases" | grep 's/tag')"
-1.0.0
+1.1.0
 
 floatversion -r "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 9.1.1  9.1.0  9.0.3  8.2.7  7.2.14  
@@ -144,9 +144,20 @@ Requires up-to-date versions of Bash, Grep and JQ. On MacOS install these via Ho
 
 ### Standalone
 
-Copy to `$PATH` eg `sudo cp floatversion /usr/bin`  or place the script in with your program.
+Copy to `$PATH` eg `sudo cp floatversion /usr/bin` or `/usr/local/bin`
 
 Make sure that it has execute permissions `sudo chmod +x /usr/bin/floatversion`
+
+Add a short link?  
+
+```bash
+cd /usr/bin
+sudo ln -s floatversion fv
+fv -V
+1.0.01
+```
+
+### Within a program
 
 The following simple wrapper can be used in Bash to call an includes folder full script:
 
@@ -157,7 +168,7 @@ floatversion () {
 }
 ```
 
-For Non-Bash, see below
+For Non-Bash, see [below](#use-in-different-shells)
 
 ### Embedding
 
@@ -207,7 +218,25 @@ Up to Date
 
 ### Updates
 
-The script snippets, above, show how to check `floatversion` releases and how to compare versions.
+The script snippets, [above,](#check-github-latest-release-or-tag) show how to check `floatversion` releases and how to compare versions.
+
+Version 1.1 now has an auto-update checker that will run on request:
+
+```txt
+floatversion -V
+
+CurrentVersion: 1.1.0
+
+Checking for updates....   LatestVersion: 1.0.01  Up-to-Date 
+
+(c) Alex Genovese  https://github.com/TuxVinyards/floatversion 
+
+OR ....
+
+if floatversion -V | grep -sq 'Up-to-Date' ; then echo OK ; fi
+
+OK
+```
 
 Alternatively see GitHub's dependabot docs for setting up alerts ....
 
@@ -223,7 +252,7 @@ For example:
 /usr/bin/fish
 
 ╭─xxx@garuda in repo: floatversion on  main [$]
-╰─λ floatversion -F 10 -M -n  non-pad-test.txt
+╰─λ floatversion -F 10 -M -n  "non-pad-test.txt"
 1.10.3
 ```
 
@@ -286,6 +315,8 @@ yes
 
 ### Limitations
 
-The input _must resemble_ semantic versioning to _some_ extent. The version number must be _dot separated_. Integers are ignored.
+The input must resemble [semantic versioning](http://semver.org/) to _some_ extent, or decimal floating points.
+
+Plain integers are ignored. The version number must be _dot separated_. Only _one_ single _hyphenated_ suffix is permitted.
 
 Some pre-filtering may be required.  
