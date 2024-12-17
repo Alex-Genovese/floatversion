@@ -140,7 +140,11 @@ floatversion --max --sort-v -f -S "1.2" "non-pad-test.txt"
 
 FloatVersion will run in Bash or in Non-Bash shells.
 
-Requires up-to-date versions of Bash, Grep and JQ. On MacOS install these via Homebrew.
+Requires up-to-date versions of Bash, Grep, JQ and Curl.
+
+- On MacOS install these via Homebrew
+
+Curl is needed from version 1.1 for the update checker on the full version only.
 
 ### Standalone
 
@@ -153,8 +157,8 @@ Add a short link?
 ```bash
 cd /usr/bin
 sudo ln -s floatversion fv
-fv -V
-1.0.01
+>
+fv -f -S "1.2" "non-pad-test.txt"  etc ...
 ```
 
 ### Within a program
@@ -230,13 +234,17 @@ CurrentVersion: 1.1.0
 Checking for updates....   LatestVersion: 1.1.0  Up-to-Date 
 
 (c) Alex Genovese  https://github.com/TuxVinyards/floatversion 
+```
 
+```bash
 OR ....
 
 if floatversion -V | grep -sq 'Up-to-Date' ; then echo OK ; fi
 
 OK
 ```
+
+Requires Curl. @ 2024 Most distros will have this.
 
 Alternatively see GitHub's dependabot docs for setting up alerts ....
 
@@ -258,7 +266,7 @@ For example:
 
 To include calls to `floatversion` standalone script from within an actual fishshell script, the following [method](https://github.com/fish-shell/fish-shell/issues/4488) may be used:
 
-```fish
+```ftxt
 ╭─xxx@garuda in repo: floatversion on  main [$] took 0s
 ╰─λ if bash -c 'floatversion --gt "1.4.5  2.3.6.7"'
 echo yes
@@ -280,7 +288,7 @@ yes
 
 The use of a transfer file will enable variables to be passed:
 
-```fish
+```txt
 ╭─xxx@garuda in repo: floatversion on  main [$]
 ╰─λ set Foo 3.1.4.1
 
