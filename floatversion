@@ -104,6 +104,8 @@ float_version_from_string ()  {
   local ShowAsCol=
   local ShowAsStr=
   local ShowMax=
+  local TopMax=
+  local TopShow=
   local ShowAll=
   local ShowRev=
   local SortNum=
@@ -166,7 +168,9 @@ float_version_from_string ()  {
         [[ ! $2 ]] && show_help && return 1
         DeleteString="$2" ; shift 2 ;;
       -M|--max)
-        ShowMax=1 ; shift ;;
+        ShowMax=1 ; shift 
+        [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; }
+        ;;
       -g|--gt)
         GTcompare=1; shift ;;
       -v|--verbose)
@@ -339,12 +343,25 @@ float_version_from_string ()  {
         ((n++))
       done
     fi
-    if [[ $ShowRev ]]; then 
-      NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
-      while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
-      [[ $Verbose ]] && { declare -p NumArrTemp ; echo ;}
+    if [[ $ShowRev ]]; then
+      NumArrTemp=(); i="${#fvOutputArr[@]}"
+      ((i-=1)) # to make sure that "${fvOutputArr[0]}" gets read
+      while [[ $i -ge 0 ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
       mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
-      [[ $Verbose ]] && { declare -p fvOutputArr ; echo; }
+      [[ $Verbose ]] && { echo "Rev:"; declare -p fvOutputArr ; echo; }
+    fi
+    if [[ $TopMax ]]; then  
+      # similar to ShowRev but separate in case TopMax needs reversing first
+      # TopShow is there to invert TopMax as the filter counts backwards from the end
+      NumArrTemp=(); i="${#fvOutputArr[@]}"
+        [[ $Verbose ]] && { echo "TopMax pre-process(1): i = $i  TopMax = $TopMax  TopShow = $TopShow"; echo; }
+      if [[ $i -gt "$TopMax" ]]; then TopShow="$((i-TopMax))"; else TopShow="$i"; fi ; ((i-=1))
+      [[ $TopShow -gt "$i" ]] && TopShow="0"
+        [[ $Verbose ]] && { echo "TopMax pre-process(2): i = $i  TopMax = $TopMax  TopShow = $TopShow"; echo; }
+      while true; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); [[ $i -lt "$TopShow" ]] && break; done
+        [[ $Verbose ]] && { echo "TopMax post-process(1):"; echo "TopMax = $TopMax TopShow = $TopShow"; declare -p NumArrTemp ; echo ;}
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
+        [[ $Verbose ]] && { echo "TopMax post-process(2):"; declare -p fvOutputArr ; echo; }
     fi
   fi
 
@@ -360,6 +377,7 @@ float_version_from_string ()  {
   elif [[ $ShowAsCol ]]; then
     printf "%s\n" "${fvOutputArr[@]}"
   else
+    # ShowMax (-1 ie the last one in the array)
     echo "${fvOutputArr[-1]}"
   fi
 
