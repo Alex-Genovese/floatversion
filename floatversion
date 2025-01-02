@@ -83,7 +83,11 @@ float_version_from_string ()  {
   -F | --filter       contains given items -F  \"string  string  string\" 
   -S | --starts       starting with -S  \"string  string  string\" 
   -D | --delete       doesn't contain: -D  \"string  string  string\" 
-  -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
+  -M | --max          Outputs the single highest/latest value in the list and with '-r' the lowest/earliest,
+                      with integer shows top or bottom of total list eg. -M 3 is top 3 and -M 3 -r the bottom.
+  -RM [int]           Outputs the single lowest/earliest value in the list. With integer, as -M but 
+                      reverses only the M filter set, not the list, eg. -M 3  > 3 2 1  -RM 3 > 1 2 3
+                      also accepts '-r' to reverse a lowest set filter ...
   -g | --gt           A > B, returns true/false -g \"A B\" (.nums or sem ver)
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
        --sort-v       use sort -V (if present) in preference to the default jq methods
@@ -105,6 +109,7 @@ float_version_from_string ()  {
   local ShowAsStr=
   local ShowMax=
   local TopMax=
+  local RevMax=
   local TopShow=
   local ShowAll=
   local ShowRev=
@@ -169,8 +174,10 @@ float_version_from_string ()  {
         DeleteString="$2" ; shift 2 ;;
       -M|--max)
         ShowMax=1 ; shift 
-        [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; }
-        ;;
+        [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; } ;;
+      -RM)
+        ShowMax=1 ; RevMax=1 ; shift 
+        [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; } ;;
       -g|--gt)
         GTcompare=1; shift ;;
       -v|--verbose)
@@ -362,6 +369,12 @@ float_version_from_string ()  {
         [[ $Verbose ]] && { echo "TopMax post-process(1):"; echo "TopMax = $TopMax TopShow = $TopShow"; declare -p NumArrTemp ; echo ;}
       mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
         [[ $Verbose ]] && { echo "TopMax post-process(2):"; declare -p fvOutputArr ; echo; }
+      if [[ $RevMax ]]; then
+        NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
+        while [[ $i -ge 0 ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
+        mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
+        [[ $Verbose ]] && { echo "RevMax:"; declare -p fvOutputArr ; echo; }
+      fi
     fi
   fi
 
@@ -376,8 +389,10 @@ float_version_from_string ()  {
     printf "\n"
   elif [[ $ShowAsCol ]]; then
     printf "%s\n" "${fvOutputArr[@]}"
+  elif [[ $RevMax ]]; then
+    echo "${fvOutputArr[0]}"
   else
-    # ShowMax (-1 ie the last one in the array)
+    # then default to = ShowMax (-1 ie the last one in the array)
     echo "${fvOutputArr[-1]}"
   fi
 
