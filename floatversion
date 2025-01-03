@@ -18,7 +18,7 @@
 
 # For this script: x.xx.xx-suffix > major.minor.point and with optionals as -beta.01 etc
 # Non-major numbers are padded to 2dp to make easier reading in file managers
-# Current Version 1.0.0  > set locally in function case statements
+# Current Version 1.02.01  > set locally in function case statements
 
 # POSIX and Mac/HomeBrew compliant initial Bash test:
 if [ ! "$(command -v bash)" ] || ! bash --version | grep bash | grep -qEo '[ ]+[5-9]+[.]' ; then
@@ -88,7 +88,8 @@ float_version_from_string ()  {
   -RM [int]           Outputs the single lowest/earliest value in the list. With integer, as -M but 
                       reverses only the M filter set, not the list, eg. -M 3  > 3 2 1  -RM 3 > 1 2 3
                       also accepts '-r' to reverse a lowest set filter ...
-  -g | --gt           A > B, returns true/false -g \"A B\" (.nums or sem ver)
+  -g | --gt           A > B, returns true/false eg. if fv -g \"A B\"; then .. (.nums or sem ver)  
+                      Normally quiet and to be tested.  Use -v for screen output or piping.
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
        --sort-v       use sort -V (if present) in preference to the default jq methods
        --no-svb       no falling back to 'jq' if 'sort -V' is unavailable, show error instead
@@ -140,7 +141,7 @@ float_version_from_string ()  {
       -h|--help)  
         show_help ; return 0 ;;
       -V|--version)
-        CurrentVersion="1.1.0"
+        CurrentVersion="1.02.01"
         printf "\n CurrentVersion: %s" "$CurrentVersion"
         printf "\n\n Checking for updates....   "
         LatestVersion="$(floatversion -M "$(curl -sf --max-time 5 "https://github.com/TuxVinyards/floatversion/releases" | grep 's/tag')" 2>/dev/null)"
@@ -409,7 +410,7 @@ float_version_from_string ()  {
 
 floatversion ()  {
   # floatversion --options  "quoted-input-string-or-text-file" 
-  # (c) Alex Genovese - version 1.1.0 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
+  # (c) Alex Genovese - version 1.02.01 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
   local ShowAsStr= ; local ShowAsCol= ; local ShowMax= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull= 
   local InputText= ; local Nums= ; local NumsCount= ; local FilterString= ; local StartString= ; local DeleteString= ; local GTcompare=
   local UseSortV= ; local NoSortVfallback= ; declare -a NumArrTemp ; declare -a NumArrSorted ; declare -a SelectArrTemp 
