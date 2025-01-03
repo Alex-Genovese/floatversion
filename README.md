@@ -37,8 +37,13 @@ floatversion -M "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
   -F | --filter       contains given items -F  "string  string  string" 
   -S | --starts       starting with -S  "string  string  string" 
   -D | --delete       doesn't contain: -D  "string  string  string" 
-  -M | --max          outputs the highest/latest value in list, only, with '-r' shows lowest/earliest
-  -g | --gt           A > B, returns true/false -g "A B" (.nums or sem ver, for -lt use B A)
+  -M | --max          Outputs the single highest/latest value in the list and with '-r' the lowest/earliest,
+                      with integer shows top or bottom of total list eg. -M 3 is top 3 and -M 3 -r the bottom.
+  -RM [int]           Outputs the single lowest/earliest value in the list. With integer, as -M but 
+                      reverses only the M filter set, not the list, eg. -M 3  > 3 2 1  -RM 3 > 1 2 3
+                      also accepts '-r' to reverse a lowest set filter ...
+  -g | --gt           A > B, returns true/false eg. if fv -g "A B"; then .. (.nums or sem ver)  
+                      Normally quiet and to be tested.  Use -v for screen output or piping.
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
        --sort-v       use sort -V (if present) in preference to the default jq methods
        --no-svb       no falling back to 'jq' if 'sort -V' is unavailable, show error instead
@@ -50,7 +55,7 @@ floatversion -M "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
   All cases, returns false if none.  Direct '2>/dev/null' to quieten messages.
 ```
 
-- Sort to latest version, to unique or to listed entries
+- Sort to latest version, to unique or to listed entries, top 3 etc
 
 ```bash
 curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
@@ -63,6 +68,10 @@ floatversion "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 
 # the latest is:
 floatversion -M "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" 
 12.6.0
+
+# the latest three are:
+floatversion -M 3 "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" 
+12.6.0  12.5.0  12.4.0
 
 # the oldest is:
 floatversion --rev -M "$(curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=')" 
@@ -121,13 +130,13 @@ Up to Date
 floatversion  -f -S "1.2" "non-pad-test.txt" 
 1.2.0-beta.2  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.2.3  1.22.3-rc1  1.22.3
 
-# latest:
+# correct latest:
 floatversion --max -f -S "1.2"  "non-pad-test.txt" 
 1.22.3
 ```
 
 ```bash
-# sort -V
+# sort -V  incorrect:
 floatversion --sort-v  -f -S "1.2" "non-pad-test.txt" 
 1.2.0-beta.2  1.2.3  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.22.3  1.22.3-rc1  
 
