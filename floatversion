@@ -75,7 +75,8 @@ float_version_from_string ()  {
 
   -h | --help         show help 
   -V | --version      show version
-  -c | --col          show list as column instead of string (unless -M)
+  -c | --col          show list as column instead of string
+  -s | --space        use single spaced string (for alternative machine reading)
   -r | --rev          show list in reverse order  
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
@@ -108,6 +109,7 @@ float_version_from_string ()  {
 
   local ShowAsCol=
   local ShowAsStr=
+  local SingleSpace=
   local ShowMax=
   local TopMax=
   local RevMax=
@@ -156,6 +158,8 @@ float_version_from_string ()  {
         return 0 ;;
       -c|--col)
         ShowAsCol=1 ; shift ;;
+      -s|--space )
+        SingleSpace=1 ; shift ;;
       -r|--rev)
         ShowRev=1 ; shift ;;
       -a|--all)
@@ -386,7 +390,9 @@ float_version_from_string ()  {
     else [[ $Verbose ]] && { echo "false"; echo ;} ; return 1
     fi
   elif [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then
-    printf "%s  " "${fvOutputArr[@]}"
+    if [[ $SingleSpace ]]; then printf "%s " "${fvOutputArr[@]}"
+    else printf "%s  " "${fvOutputArr[@]}"
+    fi
     printf "\n"
   elif [[ $ShowAsCol ]]; then
     printf "%s\n" "${fvOutputArr[@]}"
@@ -418,6 +424,7 @@ floatversion ()  {
   while [[ "$1" ]] ; do
     case "$1" in 
       -c|--col)     ShowAsCol=1 ; shift ;;
+      -s|--space )  SingleSpace=1 ; shift ;;
       -r|--rev)     ShowRev=1 ; shift ;;
       -a|--all)     ShowAll=1 ; shift ;;
       -n|--num)     SortNum=1 ; shift ;;
@@ -501,7 +508,8 @@ floatversion ()  {
   fi
   if [[ $GTcompare ]]; then 
     if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then return 0 ; else return 1 ; fi
-  elif [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then printf "%s  " "${fvOutputArr[@]}" ; printf "\n"
+  elif [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then 
+    if [[ $SingleSpace ]]; then printf "%s " "${fvOutputArr[@]}"; else printf "%s  " "${fvOutputArr[@]}"; fi
   elif [[ $ShowAsCol ]]; then printf "%s\n" "${fvOutputArr[@]}"
   elif [[ $RevMax ]]; then  echo "${fvOutputArr[0]}"  
   else  echo "${fvOutputArr[-1]}"
