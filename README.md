@@ -9,9 +9,9 @@ Use as standalone or embedded (~90 lines)
 ```text
 floatversion -V
 
- CurrentVersion: 1.02.01
+ CurrentVersion: 1.02.02
 
- Checking for updates....   LatestVersion: 1.02.01  Up-to-Date 
+ Checking for updates....   LatestVersion: 1.02.02  Up-to-Date 
 
  (c) Alex Genovese  https://github.com/TuxVinyards/floatversion
 ```
@@ -36,7 +36,8 @@ floatversion -M "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 
   -h | --help         show help 
   -V | --version      show version
-  -c | --col          show list as column instead of string (unless -M)
+  -c | --col          show list as column instead of string
+  -s | --space        use single spaced string (for alternative machine reading)
   -r | --rev          show list in reverse order  
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
