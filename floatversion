@@ -424,7 +424,8 @@ floatversion ()  {
       -F|--filter)  [[ ! $2 ]] && return 1 ; FilterString="$2" ; shift 2 ;;
       -S|--start)   [[ ! $2 ]] && return 1 ; StartString="$2" ; shift 2 ;;
       -D|--delete)  [[ ! $2 ]] && return 1 ; DeleteString="$2" ; shift 2 ;;
-      -M|--max)     ShowMax=1 ; shift ;;
+      -M|--max)     ShowMax=1 ; shift ; [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; } ;;
+      -RM)          ShowMax=1 ; RevMax=1 ; shift ; [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; } ;;
       -g|--gt)      GTcompare=1 ; shift ;;
       --sort-v)     UseSortV=1 ; shift ;;
       --no-svb)     NoSortVfallback=1 ; shift ;;
@@ -487,11 +488,21 @@ floatversion ()  {
       while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
       mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
     fi
+    if [[ $TopMax ]]; then  NumArrTemp=(); i="${#fvOutputArr[@]}"
+      if [[ $i -gt "$TopMax" ]]; then TopShow="$((i-TopMax))"; else TopShow="$i"; fi ; ((i-=1)) ; [[ $TopShow -gt "$i" ]] && TopShow="0"
+      while true; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); [[ $i -lt "$TopShow" ]] && break; done
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
+      if [[ $RevMax ]]; then NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
+        while [[ $i -ge 0 ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
+        mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
+      fi
+    fi
   fi
   if [[ $GTcompare ]]; then 
     if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then return 0 ; else return 1 ; fi
   elif [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then printf "%s  " "${fvOutputArr[@]}" ; printf "\n"
   elif [[ $ShowAsCol ]]; then printf "%s\n" "${fvOutputArr[@]}"
+  elif [[ $RevMax ]]; then  echo "${fvOutputArr[0]}"  
   else  echo "${fvOutputArr[-1]}"
   fi
 }
