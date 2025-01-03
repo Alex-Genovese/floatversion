@@ -6,10 +6,17 @@ Use as standalone or embedded (~90 lines)
 
 ## Check GitHub Latest Release or Tag
 
-```bash
-floatversion -M "$(curl -sf "https://github.com/TuxVinyards/floatversion/releases" | grep 's/tag')"
-1.1.0
+```text
+floatversion -V
 
+ CurrentVersion: 1.02.01
+
+ Checking for updates....   LatestVersion: 1.02.01  Up-to-Date 
+
+ (c) Alex Genovese  https://github.com/TuxVinyards/floatversion
+```
+
+```bash
 floatversion -r "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 9.1.1  9.1.0  9.0.3  8.2.7  7.2.14  
 
