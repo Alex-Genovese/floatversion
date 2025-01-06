@@ -243,7 +243,7 @@ The script snippets, [above,](#check-github-latest-release-or-tag) show how to c
 
 Version 1.1 now has an auto-update checker that will run on request:
 
-```txt
+```text
 floatversion -V
 
 CurrentVersion: 1.1.0
@@ -283,7 +283,7 @@ For example:
 
 To include calls to `floatversion` standalone script from within an actual fishshell script, the following [method](https://github.com/fish-shell/fish-shell/issues/4488) may be used:
 
-```ftxt
+```text
 ╭─xxx@garuda in repo: floatversion on  main [$] took 0s
 ╰─λ if bash -c 'floatversion --gt "1.4.5  2.3.6.7"'
 echo yes
@@ -305,7 +305,7 @@ yes
 
 The use of a transfer file will enable variables to be passed:
 
-```txt
+```text
 ╭─xxx@garuda in repo: floatversion on  main [$]
 ╰─λ set Foo 3.1.4.1
 
