@@ -9,19 +9,21 @@ Use as standalone or embedded (~90 lines)
 ```text
 floatversion -V
 
- CurrentVersion: 1.02.02
+ CurrentVersion: 1.3.0
 
- Checking for updates....   LatestVersion: 1.02.02  Up-to-Date 
+ Checking for updates....   LatestVersion: 1.3.0  Up-to-Date 
 
  (c) Alex Genovese  https://github.com/TuxVinyards/floatversion
 ```
 
 ```bash
+# embedded version 
 floatversion -r "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 9.1.1  9.1.0  9.0.3  8.2.7  7.2.14  
 
-floatversion -M "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
-9.1.1
+# full version also accepts pipes
+curl -sf https://github.com/qemu/qemu/tags | grep 's/tag' | fv -M 3
+9.2.3  9.2.2  9.2.1
 ```
 
 - Output as true/false test, as single item, or as space or line separated list.
@@ -29,7 +31,8 @@ floatversion -M "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 - Filter for include, exclude, starts with, and reverse
 
 ```txt
-  floatversion --options  "quoted-input-source"
+  floatversion --options  "quoted-input-source-or-data"  
+  OR  data | floatversion --options "optional-additional" 
 
   Extracts point separated numbers, or semantic version numbers with optional suffixes,
   and other common variations upon, from a given string or text-file
@@ -58,9 +61,13 @@ floatversion -M "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 
   Without options, produces a single sorted string of all unique items found
   Filters output as string, column or max. Post-output grep requires columns.
-
+  
   Tests show 'jq' sort methods as more reliable than 'sort -V' esp. with alpha suffixes
   All cases, returns false if none.  Direct '2>/dev/null' to quieten messages.
+
+  Full version required for stdin and pipes. Either or both input methods may be used.
+  May also be installed with 'fv' as an alias or symbolic link. 
+
 ```
 
 - Sort to latest version, to unique or to listed entries, top 3 etc
@@ -169,13 +176,20 @@ Copy to `$PATH` eg `sudo cp floatversion /usr/bin` or `/usr/local/bin`
 
 Make sure that it has execute permissions `sudo chmod +x /usr/bin/floatversion`
 
-Add a short link?  
+Add a symbolic link or alias
 
 ```bash
 cd /usr/bin
 sudo ln -s floatversion fv
 >
 fv -f -S "1.2" "non-pad-test.txt"  etc ...
+```
+
+```bash
+alias fv='floatversion'
+>
+ls | fv -f
+5.13  6.8.0-56-generic  6.8.0-57-generic
 ```
 
 ### Within a program
