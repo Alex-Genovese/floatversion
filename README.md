@@ -1,34 +1,20 @@
-# Extracts and sorts software release numbers
+# fv : extracts and sorts software release numbers
 
 Point separated, multi-point separated or [semantic](http://semver.org/) versioned and versioned suffixed
 
-Use as standalone or embedded (~90 lines)
-
-## Check GitHub Latest Release or Tag
-
-```text
-floatversion -V
-
- CurrentVersion: 1.3.0
-
- Checking for updates....   LatestVersion: 1.3.0  Up-to-Date 
-
- (c) Alex Genovese  https://github.com/TuxVinyards/floatversion
-```
+Use as full standalone, or compact embedded (~90 lines)
 
 ```bash
-# embedded version 
-floatversion -r "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
-9.1.1  9.1.0  9.0.3  8.2.7  7.2.14  
+# full version using pipes (show latest)
+curl -sf https://github.com/qemu/qemu/tags | grep 's/tag' | fv -M
+9.2.3
 
-# full version also accepts pipes
-curl -sf https://github.com/qemu/qemu/tags | grep 's/tag' | fv -M 3
-9.2.3  9.2.2  9.2.1
+# embedded version (show latest 3)
+floatversion -M 3 "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
+9.2.3  9.2.2  9.2.1 
 ```
 
-- Output as true/false test, as single item, or as space or line separated list.
-
-- Filter for include, exclude, starts with, and reverse
+- Multiple Filters: include, exclude, starts with, reverse ...
 
 ```txt
   floatversion --options  "quoted-input-source-or-data"  
@@ -70,9 +56,46 @@ curl -sf https://github.com/qemu/qemu/tags | grep 's/tag' | fv -M 3
 
 ```
 
-- Sort to latest version, to unique or to listed entries, top 3 etc
+- Standard numeric or semantic ordering
 
 ```bash
+# standard
+floatversion --num "floats.txt" 
+0.039  0.4  1.09  1.1  1.10  1.11  1.222  1.24  3.0  3.1114  3.141  5.111899  5.7899  16.311  16.32  34.107  34.6 
+
+# semantic
+floatversion  "floats.txt" 
+0.4  0.039  1.1  1.09  1.10  1.11  1.24  1.222  3.0  3.141  3.1114  5.7899  5.111899  16.32  16.311  34.6  34.107 
+```
+
+- Sort to latest version, to unique or to listed entries, top 3 etc
+
+- Uses reliable JQ sort formula
+
+```bash
+# JQ:
+floatversion  -f -S "1.2" "non-pad-test.txt" 
+1.2.0-beta.2  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.2.3  1.22.3-rc1  1.22.3
+
+# correct latest:
+floatversion --max -f -S "1.2"  "non-pad-test.txt" 
+1.22.3
+```
+
+```bash
+# sort -V  incorrect:
+floatversion --sort-v  -f -S "1.2" "non-pad-test.txt" 
+1.2.0-beta.2  1.2.3  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.22.3  1.22.3-rc1  
+
+# incorrect:
+floatversion --max --sort-v -f -S "1.2" "non-pad-test.txt" 
+1.22.3-rc1
+```
+
+- Outputs as true/false test, as single item, or as space or line separated list.
+
+```bash
+# reduce huge lists
 curl -sLf  "https://cdimage.debian.org/cdimage/archive/" | grep 'src=' | wc -l
 271
 
@@ -119,16 +142,6 @@ floatversion -f -F live -M "non-pad-test.txt"
 1.2.3-live
 ```
 
-- Standard numeric or semantic ordering
-
-```bash
- floatversion --num "floats.txt" 
-0.039  0.4  1.09  1.1  1.10  1.11  1.222  1.24  3.0  3.1114  3.141  5.111899  5.7899  16.311  16.32  34.107  34.6 
-
-floatversion  "floats.txt" 
-0.4  0.039  1.1  1.09  1.10  1.11  1.24  1.222  3.0  3.141  3.1114  5.7899  5.111899  16.32  16.311  34.6  34.107 
-```
-
 - Compare versions
 
 ```bash
@@ -136,28 +149,6 @@ LatestAchive="$(floatversion -M "$(curl -sLf  "https://cdimage.debian.org/cdimag
 Current="$(cat /etc/debian_version)"
 if floatversion --gt  "$Current $LatestAchive" ; then echo "Up to Date"; fi
 Up to Date
-```
-
-- Reliable JQ sort formula
-
-```bash
-# JQ:
-floatversion  -f -S "1.2" "non-pad-test.txt" 
-1.2.0-beta.2  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.2.3  1.22.3-rc1  1.22.3
-
-# correct latest:
-floatversion --max -f -S "1.2"  "non-pad-test.txt" 
-1.22.3
-```
-
-```bash
-# sort -V  incorrect:
-floatversion --sort-v  -f -S "1.2" "non-pad-test.txt" 
-1.2.0-beta.2  1.2.3  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.22.3  1.22.3-rc1  
-
-# incorrect:
-floatversion --max --sort-v -f -S "1.2" "non-pad-test.txt" 
-1.22.3-rc1
 ```
 
 ## Easy Install
@@ -170,7 +161,7 @@ Requires up-to-date versions of Bash, Grep, JQ and Curl.
 
 Curl is needed from version 1.1 for the update checker on the full version only.
 
-### Standalone
+## Use as a Standalone
 
 Copy to `$PATH` eg `sudo cp floatversion /usr/bin` or `/usr/local/bin`
 
@@ -192,9 +183,9 @@ ls | fv -f
 5.13  6.8.0-56-generic  6.8.0-57-generic
 ```
 
-### Within a program
+### calls from within a script
 
-The following simple wrapper can be used in Bash to call an includes folder full script:
+The following simple wrapper can be used in Bash to call full script from a custom includes folder:
 
 ```bash
 ExampleProgFolder="/usr/share/my-prog/utils"
@@ -205,7 +196,15 @@ floatversion () {
 
 For Non-Bash, see [below](#use-in-different-shells)
 
-### Embedding
+### stdin and pipes
+
+To enable sub-shelled pipe constructs (ver 1.3 on), the floatversion script must be locatable within `$PATH`
+
+When placing the script in a standard location is not possible, a temporary session `export` routine should be used,
+
+ie `export PATH="${fvPath}:${PATH}"`
+
+## Embedding
 
 This method is suitable only for Bash scripts.
 
@@ -251,9 +250,9 @@ Up to Date
 
 ```
 
-### Updates
+## Updates
 
-The script snippets, [above,](#check-github-latest-release-or-tag) show how to check `floatversion` releases and how to compare versions.
+The script snippets, [above,](#fv--extracts-and-sorts-software-release-numbers) show how to check `floatversion` releases and how to compare versions.
 
 Version 1.1 now has an auto-update checker that will run on request:
 
@@ -279,7 +278,7 @@ Requires Curl. @ 2024 Most distros will have this.
 
 Alternatively see GitHub's dependabot docs for setting up alerts ....
 
-### Use in different shells
+## Use in different shells
 
 The script's Shebang will mean that direct running of the standalone is possible from the interactive terminal.
 
@@ -352,7 +351,7 @@ end
 yes
 ```
 
-### Limitations
+## Limitations
 
 The input must resemble [semantic versioning](http://semver.org/) to _some_ extent, or decimal floating points.
 
