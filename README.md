@@ -9,6 +9,10 @@ Use as full standalone, or compact embedded (~90 lines)
 curl -sf https://github.com/qemu/qemu/tags | grep 's/tag' | fv -M
 9.2.3
 
+# full version using pipes (show latest rc and beta)
+curl -sf https://github.com/qemu/qemu/tags | grep 's/tag' | fv -M --full
+10.0.0-rc2
+
 # embedded version (show latest 3)
 floatversion -M 3 "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 9.2.3  9.2.2  9.2.1 
