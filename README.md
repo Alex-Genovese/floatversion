@@ -60,6 +60,8 @@ floatversion -M 3 "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 
 ```
 
+## Superior sorting methods
+
 - Standard numeric or semantic ordering
 
 ```bash
@@ -95,6 +97,8 @@ floatversion --sort-v  -f -S "1.2" "non-pad-test.txt"
 floatversion --max --sort-v -f -S "1.2" "non-pad-test.txt" 
 1.22.3-rc1
 ```
+
+## Easy to use single pass extraction and filter
 
 - Outputs as true/false test, as single item, or as space or line separated list.
 
