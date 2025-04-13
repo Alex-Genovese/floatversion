@@ -98,11 +98,11 @@ float_version_from_string ()  {
   Without options, produces a single sorted string of all unique items found
   Filters output as string, column or max. Post-output grep requires columns.
 
-  Tests show 'jq' sort methods as more reliable than 'sort -V' esp. with alpha suffixes
-  All cases, returns false if none.  Direct \'2>/dev/null\' to quieten messages.
+  Tests show 'jq' sort methods as more reliable than 'sort -V' when encountering suffixes
+  In all cases, returns false if none.  Use '2>/dev/null' to quieten error messages.
 
   Full version required for stdin and pipes. Either or both input methods may be used.
-  May also be installed with 'fv' as an alias or symbolic link. 
+  Only use short name links in PATH controlled situations. 
   
   License: MIT  Copyright (c) Alex Genovese  
   Further Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
@@ -147,7 +147,7 @@ float_version_from_string ()  {
       -h|--help)  
         show_help ; return 0 ;;
       -V|--version)
-        CurrentVersion="1.3.0"
+        CurrentVersion="1.3.01"
         printf "\n CurrentVersion: %s" "$CurrentVersion"
         printf "\n\n Checking for updates....   "
         LatestVersion="$(floatversion -M "$(curl -sf --max-time 5 "https://github.com/TuxVinyards/floatversion/releases" | grep 's/tag')" 2>/dev/null)"

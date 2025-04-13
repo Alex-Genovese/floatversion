@@ -52,11 +52,11 @@ floatversion -M 3 "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
   Without options, produces a single sorted string of all unique items found
   Filters output as string, column or max. Post-output grep requires columns.
   
-  Tests show 'jq' sort methods as more reliable than 'sort -V' esp. with alpha suffixes
-  All cases, returns false if none.  Direct '2>/dev/null' to quieten messages.
+  Tests show 'jq' sort methods as more reliable than 'sort -V' when encountering suffixes
+  In all cases, returns false if none.  Use '2>/dev/null' to quieten error messages.
 
   Full version required for stdin and pipes. Either or both input methods may be used.
-  May also be installed with 'fv' as an alias or symbolic link. 
+  Only use short name links in PATH controlled situations. 
 
 ```
 
@@ -80,7 +80,7 @@ floatversion  "floats.txt"
 
 ```bash
 # JQ:
-floatversion  -f -S "1.2" "non-pad-test.txt" 
+floatversion --full --starts "1.2" "non-pad-test.txt" 
 1.2.0-beta.2  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.2.3  1.22.3-rc1  1.22.3
 
 # correct latest:
@@ -90,11 +90,7 @@ floatversion --max -f -S "1.2"  "non-pad-test.txt"
 
 ```bash
 # sort -V  incorrect:
-floatversion --sort-v  -f -S "1.2" "non-pad-test.txt" 
-1.2.0-beta.2  1.2.3  1.2.3-beta.1  1.2.3-live  1.2.3-rc1  1.22.3  1.22.3-rc1  
-
-# incorrect:
-floatversion --max --sort-v -f -S "1.2" "non-pad-test.txt" 
+tr ' ' '\n' <<< "1.2.3-rc2  1.2.3  1.22.3-rc1  1.22.3  1.2.0-beta2  1.2.3-beta1" | sort -Vr | head -n 1
 1.22.3-rc1
 ```
 
@@ -171,46 +167,59 @@ Curl is needed from version 1.1 for the update checker on the full version only.
 
 ## Use as a Standalone
 
-Copy to `$PATH` eg `sudo cp floatversion /usr/bin` or `/usr/local/bin`
+The name `floatversion` was carefully checked for duplication before it was selected.
 
-Make sure that it has execute permissions `sudo chmod +x /usr/bin/floatversion`
+Short forms, such as `fv` may be used but _only in controlled situations._
 
-Add a symbolic link or alias
+### Enabling stdin and pipes
+
+From version 1.3 onwards, sub-shelled pipe constructs are possible when the full version script has been located within `$PATH`
+
+Ideally the script should be placed in a non-standard location and a temporary session `export` routine should be used:
 
 ```bash
-cd /usr/bin
-sudo ln -s floatversion fv
->
-fv -f -S "1.2" "non-pad-test.txt"  etc ...
+fvPath="/usr/share/my-prog/utils"
+export PATH="${fvPath}:${PATH}"
 ```
 
-```bash
-alias fv='floatversion'
->
-ls | fv -f
-5.13  6.8.0-56-generic  6.8.0-57-generic
-```
+### Use with std args
 
-### calls from within a script
+This method is ideal when re-using script lines that have been employed on the embedded `floatversion` function.
 
-The following simple wrapper can be used in Bash to call full script from a custom includes folder:
+It is slightly easier to set up but code lines are slightly longer to construct.
+
+A simple wrapper can be used in Bash to call the full script from an includes folder:
 
 ```bash
-ExampleProgFolder="/usr/share/my-prog/utils"
 floatversion () { 
-  "$ExampleProgFolder/floatversion" "$@" 
+  "/usr/share/my-prog/utils/floatversion" "$@" 
 }
 ```
 
 For Non-Bash, see [below](#use-in-different-shells)
 
-### stdin and pipes
+### Symbolic links and aliases
 
-To enable sub-shelled pipe constructs (ver 1.3 on), the floatversion script must be locatable within `$PATH`
+Only where a custom `PATH` has been exported within a script or where a custom path is head of the list
 
-When placing the script in a standard location is not possible, a temporary session `export` routine should be used,
+```bash
+cd /usr/share/my-prog
+sudo ln -s floatversion fv
+>
+fv -f -S "1.2" "non-pad-test.txt"  etc ...
+```
 
-ie `export PATH="${fvPath}:${PATH}"`
+On a _known computer_ where local or other appears first in $PATH and where the addition of other software is **user** controlled
+
+```bash
+# possibly:
+sudo cp floatversion /usr/local/bin
+sudo chmod +x /usr/local/bin/floatversion
+alias fv='floatversion'
+>
+ls | fv -f
+5.13  6.8.0-56-generic  6.8.0-57-generic
+```
 
 ## Embedding
 
@@ -219,6 +228,8 @@ This method is suitable only for Bash scripts.
 Single scripts can add the compact function in a simple copy and paste operation which is ready to go.
 
 In larger projects, the required extra space for the full function won't notice and you will have verbose mode ready built in.
+
+Either of the functions can be copied by simply opening the `floatversion` script in a text editor.
 
 The full version is named differently inside the standalone script to enable easy separation. When pasting the full version, it should be renamed to `floatversion`, the same as with the compact one.
 
