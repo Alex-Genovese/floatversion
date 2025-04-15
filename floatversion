@@ -48,10 +48,12 @@ fi
 # Flag for dev analysis, set =1 to use compact version when running from script  OR -C / --compact  as $1
 CompactVersion=
 
-# Optional output array:
-# When embedding in Bash scripts, the optional array '${fvOutputArr[*]}' is by default set as global
-# In standalone full mode, setting a path here will enable output in plain text column format
-# to a transfer file eg '/tmp/fv-arr.txt' that can be be mapped by most scripts
+# Array output:
+# When embedding in Bash scripts, the array '${fvOutputArr[*]}' is accessible by default
+# via the global (-g) declaration at the function start
+# Additionally, full embedded or standalone will automatically output to '/tmp/fv-arr.txt'
+# in a plain text column format, creating a transfer file that can be be mapped by most scripts.
+# Or, when using $PATH controlled standalones, an alternative array filepath may be specified here. 
 FvArrFilePath=
 
 ##
@@ -75,8 +77,8 @@ float_version_from_string ()  {
 
   -h | --help         show help 
   -V | --version      show version
-  -c | --col          show list as column instead of string
-  -s | --space        use single spaced string (for alternative machine reading)
+  -c | --col          show list as column instead of string  (-qc quiet)
+  -s | --space        use single spaced string for machine reading (-qs quiet)
   -r | --rev          show list in reverse order  
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
@@ -91,6 +93,7 @@ float_version_from_string ()  {
                       also accepts '-r' to reverse a lowest set filter ...
   -g | --gt           A > B, returns true/false eg. if fv -g \"A B\"; then .. (.nums or sem ver)  
                       Normally quiet and to be tested.  Use -v for screen output or piping.
+  -Q | --quiet        Quieten general error messages, as alternative to using '2>/dev/null'
   -v | --verbose      for problem output, show algorithm sequences (full version only) 
        --sort-v       use sort -V (if present) in preference to the default jq methods
        --no-svb       no falling back to 'jq' if 'sort -V' is unavailable, show error instead
@@ -99,10 +102,10 @@ float_version_from_string ()  {
   Filters output as string, column or max. Post-output grep requires columns.
 
   Tests show 'jq' sort methods as more reliable than 'sort -V' when encountering suffixes
-  In all cases, returns false if none.  Use '2>/dev/null' to quieten error messages.
-
-  Full version required for stdin and pipes. Either or both input methods may be used.
-  Only use short name links in PATH controlled situations. 
+  In all cases, returns false if none found in data, with error if data missing.
+  
+  Stdin and Pipes require the Standalone version.  Either or both input methods may be used.
+  Only use 'fv' or short name links in PATH controlled situations. See readme for further notes.
   
   License: MIT  Copyright (c) Alex Genovese  
   Further Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
@@ -404,22 +407,23 @@ float_version_from_string ()  {
     [[ $Verbose ]] && { echo "true"; echo ;} ; return 0
     else [[ $Verbose ]] && { echo "false"; echo ;} ; return 1
     fi
-  elif [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then
+  elif [[ "${fvOutputArr[*]}" ]] && [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then
     if [[ $SingleSpace ]]; then printf "%s " "${fvOutputArr[@]}"
     else printf "%s  " "${fvOutputArr[@]}"
     fi
     printf "\n"
-  elif [[ $ShowAsCol ]]; then
+  elif [[ "${fvOutputArr[*]}" ]] && [[ $ShowAsCol ]]; then
     printf "%s\n" "${fvOutputArr[@]}"
-  elif [[ $RevMax ]]; then
+  elif [[ "${fvOutputArr[*]}" ]] && [[ $RevMax ]]; then
     echo "${fvOutputArr[0]}"
-  else
+  elif [[ "${fvOutputArr[*]}" ]]; then
     # then default to = ShowMax (-1 ie the last one in the array)
     echo "${fvOutputArr[-1]}"
+  else return 1
   fi
 
-  if [[ $FvArrFilePath ]]; then
-    printf "%s\n" "${fvOutputArr[@]}" > "$FvArrFilePath"
+  if [[ $FvArrFilePath ]]; then printf "%s\n" "${fvOutputArr[@]}" > "$FvArrFilePath"
+  else printf "%s\n" "${fvOutputArr[@]}" > "/tmp/fv-arr.txt"
   fi
 
 }
@@ -542,3 +546,4 @@ fi
 
 # https://code.visualstudio.com/ 
 # vim:tabstop=2:shiftwidth=2:expandtab
+
