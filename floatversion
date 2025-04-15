@@ -68,6 +68,7 @@ FvArrFilePath=
 float_version_from_string ()  {
 
 	show_help () {
+    if [[ ! $HideErrors ]]; then
 	  printf "
   floatversion --options  \"quoted-input-source-or-data\"  
   OR  data | floatversion --options \"optional-additional\" 
@@ -110,7 +111,8 @@ float_version_from_string ()  {
   License: MIT  Copyright (c) Alex Genovese  
   Further Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
 
-"  
+" 
+fi 
   }
 
   local ShowAsCol=
@@ -125,6 +127,7 @@ float_version_from_string ()  {
   local SortNum=
   local GrepFull=
   local InputText=
+  local HideErrors=
   local StdIn=
   local Nums=
   local NumsCount=
@@ -163,9 +166,19 @@ float_version_from_string ()  {
         fi
         printf "\n\n (c) Alex Genovese  https://github.com/TuxVinyards/floatversion \n\n"
         return 0 ;;
-      -c|--col)
+      -Q|--quiet)
+        HideErrors=1; shift ;;
+      -v|--verbose)
+        Verbose=1 ; shift ;;
+      --sort-v)
+        UseSortV=1 ; shift ;;
+      --no-svb)
+        NoSortVfallback=1 ; shift ;;
+      -c|-qc|--col)
+        [[ $1 == "-qc" ]] && HideErrors=1
         ShowAsCol=1 ; shift ;;
-      -s|--space )
+      -s|-qs|--space )
+        [[ $1 == "-qs" ]] && HideErrors=1
         SingleSpace=1 ; shift ;;
       -r|--rev)
         ShowRev=1 ; shift ;;
@@ -192,19 +205,15 @@ float_version_from_string ()  {
         [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; } ;;
       -g|--gt)
         GTcompare=1; shift ;;
-      -v|--verbose)
-        Verbose=1 ; shift ;;
-      --sort-v)
-        UseSortV=1 ; shift ;;
-      --no-svb)
-        NoSortVfallback=1 ; shift ;;
       *) 
         if [[ "$1" == '-'* ]]; then
-          printf "\n  ERROR:  '%s'  not recognised \n" "$1" >&2
-          show_help >&2 ; return 1
+          if [[ ! $HideErrors ]]; then  printf "\n  ERROR:  '%s'  not recognised \n" "$1" >&2 ; show_help >&2
+          fi
+          return 1
         elif [[ $InputText ]]; then
-          printf "\n  ERROR: QUOTED Input String or Text File Name should be given \n" >&2
-          show_help >&2 ; return 1
+          if [[ ! $HideErrors ]]; then printf "\n  ERROR: QUOTED Input String or Text File Name should be given \n" >&2 ; show_help >&2
+          fi
+          return 1
         else
           InputText="$1" ; shift 
         fi ;;
@@ -225,11 +234,14 @@ float_version_from_string ()  {
   else InputText="$StdIn"
   fi
 
-  if [[ ! $InputText ]]; then 
-    { printf "\n  Input data should be piped or presented as a quoted element"
-      printf "\n  To suppress empty pipe errors use '2>/dev/null' \n"
-    } >&2
-    show_help >&2 ; return 1
+  if [[ ! $InputText ]]; then
+    if [[ ! $HideErrors ]]; then 
+      { printf "\n  Input data should be piped or presented as a quoted element"
+        printf "\n  To suppress empty pipe errors use '2>/dev/null' \n"
+      } >&2
+      show_help >&2
+    fi
+    return 1
   fi
 
   [[ $FilterString ]] && mapfile -t FilterArr <<< "$(tr ' ' '\n' <<< "$FilterString")"
@@ -283,9 +295,12 @@ float_version_from_string ()  {
 
   [[ $Verbose ]] && { echo "Nums: ($NumsCount)"; echo "$Nums"; echo ;}
 
-  if [[ $GTcompare ]] && [[ "$NumsCount" != 2 ]]; then 
-    printf "\n  ERROR:  two floating point or semantic version values should be supplied" >&2
-    show_help >&2 ; return 1
+  if [[ $GTcompare ]] && [[ "$NumsCount" != 2 ]]; then
+    if [[ ! $HideErrors ]]; then 
+      printf "\n  ERROR:  two floating point or semantic version values should be supplied" >&2
+      show_help >&2
+    fi
+    return 1
   fi
 
   # none found, return false
