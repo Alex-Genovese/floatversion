@@ -93,9 +93,9 @@ float_version_from_string ()  {
                       reverses only the M filter set, not the list, eg. -M 3  > 3 2 1  -RM 3 > 1 2 3
                       also accepts '-r' to reverse a lowest set filter ...
   -g | --gt           A > B, returns true/false eg. if fv -g \"A B\"; then .. (.nums or sem ver)  
-                      Normally quiet and to be tested.  Use -v for screen output or piping.
+                      use -v for dev output, normally quiet and allows conditional testing.
   -Q | --quiet        Quieten general error messages, as alternative to using '2>/dev/null'
-  -v | --verbose      for problem output, show algorithm sequences (full version only) 
+  -v | --verbose      show algorithm sequences (full version only) for problem output.
        --sort-v       use sort -V (if present) in preference to the default jq methods
        --no-svb       no falling back to 'jq' if 'sort -V' is unavailable, show error instead
 
@@ -153,7 +153,7 @@ fi
       -h|--help)  
         show_help ; return 0 ;;
       -V|--version)
-        CurrentVersion="1.3.01"
+        CurrentVersion="1.4.0"
         printf "\n CurrentVersion: %s" "$CurrentVersion"
         printf "\n\n Checking for updates....   "
         LatestVersion="$(floatversion -M "$(curl -sf --max-time 5 "https://github.com/TuxVinyards/floatversion/releases" | grep 's/tag')" 2>/dev/null)"
