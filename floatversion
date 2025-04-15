@@ -451,14 +451,17 @@ fi
 floatversion ()  {
   # floatversion --options  "quoted-input-string-or-text-file" 
   # (c) Alex Genovese - version 1.02.02 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
-  local ShowAsStr= ; local ShowAsCol= ; local ShowMax= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull= 
+  local ShowAsStr= ; local ShowAsCol= ; local ShowMax= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull= ; local HideErrors=
   local InputText= ; local Nums= ; local NumsCount= ; local FilterString= ; local StartString= ; local DeleteString= ; local GTcompare=
   local UseSortV= ; local NoSortVfallback= ; declare -a NumArrTemp ; declare -a NumArrSorted ; declare -a SelectArrTemp 
   declare -a FilterArr ; declare -a StartArr ; declare -a DeleteArr ; declare -ga fvOutputArr 
   while [[ "$1" ]] ; do
-    case "$1" in 
-      -c|--col)     ShowAsCol=1 ; shift ;;
-      -s|--space )  SingleSpace=1 ; shift ;;
+    case "$1" in
+      -Q|--quiet)   HideErrors=1 ; shift ;;
+      -c|-qc|--col)   [[ $1 == "-qc" ]] && HideErrors=1 ; ShowAsCol=1 ; shift ;;
+      -s|-qs|--space) [[ $1 == "-qs" ]] && HideErrors=1 ; SingleSpace=1 ; shift ;;
+      --sort-v)     UseSortV=1 ; shift ;;
+      --no-svb)     NoSortVfallback=1 ; shift ;;
       -r|--rev)     ShowRev=1 ; shift ;;
       -a|--all)     ShowAll=1 ; shift ;;
       -n|--num)     SortNum=1 ; shift ;;
@@ -469,29 +472,27 @@ floatversion ()  {
       -M|--max)     ShowMax=1 ; shift ; [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; } ;;
       -RM)          ShowMax=1 ; RevMax=1 ; shift ; [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; } ;;
       -g|--gt)      GTcompare=1 ; shift ;;
-      --sort-v)     UseSortV=1 ; shift ;;
-      --no-svb)     NoSortVfallback=1 ; shift ;;
-      *)  if [[ "$1" == '-'* ]]; then printf "\n  ERROR:  '%s'  not recognised \n\n" "$1" >&2 ; return 1
-          elif [[ $InputText ]]; then printf "\n  ERROR:  QUOTED Input String or Text File Name should be given only once \n\n" >&2 ; return 1
+      *)  if [[ "$1" == '-'* ]]; then [[ ! $HideErrors ]] && printf "\n  ERROR:  '%s'  not recognised \n\n" "$1" >&2 ; return 1
+          elif [[ $InputText ]]; then [[ ! $HideErrors ]] && printf "\n  ERROR:  QUOTED Input String or Text File Name should be given only once \n\n" >&2 ; return 1
           else InputText="$1" ; shift ; fi ;;
     esac
   done
   [[ -e "$InputText" ]] && InputText="$(cat -A "$InputText")"
   InputText="$(tr -cd '[:print:]' <<< "$InputText" | tr ';' ' ' | tr '$' ' ' | tr ' ' '\n' | grep -sE '[[:print:]]')" 
-  [[ ! $InputText ]] && printf "\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n" >&2 && return 1
+  if [[ ! $InputText ]]; then [[ ! $HideErrors ]] && printf "\n  ERROR: no input found.  Is '-i' or '-g' the last parameter plus input the last quoted element? \n\n" >&2 ; return 1 ; fi
   [[ $FilterString ]] && mapfile -t FilterArr <<< "$(tr ' ' '\n' <<< "$FilterString")"
   [[ $StartString ]] && mapfile -t StartArr <<< "$(tr ' ' '\n' <<< "$StartString")"
   [[ $DeleteString ]] && mapfile -t DeleteArr <<< "$(tr ' ' '\n' <<< "$DeleteString")" 
   if [[ $ShowMax ]]; then ShowAsStr= ; ShowAsCol= ; elif [[ $ShowAsCol ]]; then ShowAsStr= ; else ShowAsStr=1 ; fi
   if [[ $UseSortV ]] &&  ! sort --help | grep -sq -o 'version-sort' ; then 
-    if [[ $NoSortVfallback ]]; then  printf "\n  Sorry, 'sort -V' is not available, you need 'jq' to run this script. \n\n" >&2 ; else UseSortV= ; fi
+    if [[ $NoSortVfallback ]]; then  [[ ! $HideErrors ]] && printf "\n  Sorry, 'sort -V' is not available, you need 'jq' to run this script. \n\n" >&2 ; else UseSortV= ; fi
   fi
-  if [[ ! $UseSortV ]] && [[ ! "$(command -v jq)" ]]; then printf "\n  Sorry, you need to install 'jq' to run this script. \n\n" >&2 ; fi
+  if [[ ! $UseSortV ]] && [[ ! "$(command -v jq)" ]]; then [[ ! $HideErrors ]] && printf "\n  Sorry, you need to install 'jq' to run this script. \n\n" >&2 ; fi
   [[ $GTcompare ]] && GrepFull=1
   if [[ $GrepFull ]]; then Nums="$(grep -sEo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?+([-][[:alnum:]]+)?+([.][[:digit:]]+)?' <<< "$InputText" )"
   else Nums="$(grep -sEo '[0-9]+([.][0-9]+)+([.][0-9]+)?+([.][0-9]+)?+([.][0-9]+)?' <<< "$InputText" )"; fi ;  printf -v Nums "%s\n" "$Nums"
   Nums="$(grep -s '[[:print:]]' <<< "$Nums")" ; NumsCount="$(grep -sc '[[:print:]]' <<< "$Nums")" 
-  if [[ $GTcompare ]] && [[ "$NumsCount" != 2 ]]; then printf "\n  ERROR:  two floating point or semantic version values should be supplied \n\n" >&2 ; return 1 ; fi
+  if [[ $GTcompare ]] && [[ "$NumsCount" != 2 ]]; then [[ ! $HideErrors ]] && printf "\n  ERROR:  two floating point or semantic version values should be supplied \n\n" >&2 ; return 1 ; fi
   [[ ! $Nums ]] && return 1
   mapfile -t NumArrTemp  <<< "$(tr ' ' '\n' <<< "$Nums")"
   if [[ $ShowAll ]]; then mapfile -t  NumArrSorted <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
@@ -511,25 +512,21 @@ floatversion ()  {
         mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${fvOutputArr[@]}" | grep -s "${FilterArr[n]}")"
         while [[ $i -lt "${#NumArrTemp[@]}" ]]; do SelectArrTemp+=("${NumArrTemp[i]}"); ((i+=1)); done; ((n++))
       done 
-      fvOutputArr=(); i=0 ; while [[ $i -lt "${#SelectArrTemp[@]}" ]]; do fvOutputArr+=("${SelectArrTemp[i]}"); ((i+=1)); done
-    fi
+      fvOutputArr=(); i=0 ; while [[ $i -lt "${#SelectArrTemp[@]}" ]]; do fvOutputArr+=("${SelectArrTemp[i]}"); ((i+=1)); done ; fi
     if [[ $StartString ]]; then n=0
       while [[ $n -lt "${#StartArr[@]}" ]]; do NumArrTemp=(); i=0 
         mapfile -t  NumArrTemp <<< "$(printf "%s\n" "${fvOutputArr[@]}" | grep -sE ^"${StartArr[n]}")"
         while [[ $i -lt "${#NumArrTemp[@]}" ]]; do SelectArrTemp+=("${NumArrTemp[i]}"); ((i+=1)); done; ((n++))
       done 
-      fvOutputArr=(); i=0 ; while [[ $i -lt "${#SelectArrTemp[@]}" ]]; do fvOutputArr+=("${SelectArrTemp[i]}"); ((i+=1)); done
-    fi
+      fvOutputArr=(); i=0 ; while [[ $i -lt "${#SelectArrTemp[@]}" ]]; do fvOutputArr+=("${SelectArrTemp[i]}"); ((i+=1)); done ; fi
     if [[ $DeleteString ]]; then n=0
       while [[ $n -lt "${#DeleteArr[@]}" ]]; do NumArrTemp=(); i=0 
         while [[ $i -lt "${#fvOutputArr[@]}" ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i+=1)); done
         mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}" | grep -sv "${DeleteArr[n]}")" ; ((n++))
-      done
-    fi
+        done ; fi
     if [[ $ShowRev ]]; then NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
       while [[ $i -ge 0  ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
-      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
-    fi
+      mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")" ; fi
     if [[ $TopMax ]]; then  NumArrTemp=(); i="${#fvOutputArr[@]}"
       if [[ $i -gt "$TopMax" ]]; then TopShow="$((i-TopMax))"; else TopShow="$i"; fi ; ((i-=1)) ; [[ $TopShow -gt "$i" ]] && TopShow="0"
       while true; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); [[ $i -lt "$TopShow" ]] && break; done
@@ -537,17 +534,16 @@ floatversion ()  {
       if [[ $RevMax ]]; then NumArrTemp=(); i="${#fvOutputArr[@]}"; ((i-=1))
         while [[ $i -ge 0 ]]; do NumArrTemp+=("${fvOutputArr[i]}"); ((i-=1)); done
         mapfile -t  fvOutputArr <<< "$(printf "%s\n" "${NumArrTemp[@]}")"
-      fi
-    fi
+      fi ; fi
   fi
   if [[ $GTcompare ]]; then 
     if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then return 0 ; else return 1 ; fi
-  elif [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then 
+  elif [[ "${fvOutputArr[*]}" ]] && [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then 
     if [[ $SingleSpace ]]; then printf "%s " "${fvOutputArr[@]}"; else printf "%s  " "${fvOutputArr[@]}"; fi
-  elif [[ $ShowAsCol ]]; then printf "%s\n" "${fvOutputArr[@]}"
-  elif [[ $RevMax ]]; then  echo "${fvOutputArr[0]}"  
-  else  echo "${fvOutputArr[-1]}"
-  fi
+  elif [[ "${fvOutputArr[*]}" ]] && [[ $ShowAsCol ]]; then printf "%s\n" "${fvOutputArr[@]}"
+  elif [[ "${fvOutputArr[*]}" ]] && [[ $RevMax ]]; then  echo "${fvOutputArr[0]}"  
+  elif [[ "${fvOutputArr[*]}" ]]; then echo "${fvOutputArr[-1]}"
+  else return 1 ; fi
 }
 
 
