@@ -21,7 +21,7 @@
 
 # POSIX and Mac/HomeBrew compliant initial Bash test:
 if [ ! "$(command -v bash)" ] || ! bash --version | grep bash | grep -qEo '[ ]+[5-9]+[.]' ; then
-  echo; echo "  Sorry, you need Bash, probably 5.0 or newer to run this script."; echo
+  echo; echo "  FloatVersion: you need Bash, probably 5.0 or newer to run this script."; echo
   echo "  FloatVersion has only been tested on up-to-date versions of Bash"; echo
   echo "  Certain elements require at least ver 4.2 .... "; echo
   if [ "$(uname -o)" = "Darwin" ]; then echo "  An update is needed via HomeBrew"; echo ; fi
@@ -37,11 +37,11 @@ fi
 # MacOS requires Homebrew additions of Bash and of Grep. Also needs JQ.
 if [[ "$(uname -o)" == "Darwin" ]]; then 
   if [[ ! -d "/usr/local/opt/grep/libexec/gnubin" ]]; then 
-    echo; echo "  Sorry, you need to update 'grep' via HomeBrew to run this script."; echo
+    echo; echo "  FloatVersion: you need to update 'grep' via HomeBrew to run this script."; echo
   elif ! grep -q 'gnubin' <<< "$PATH" ; then export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"
   fi
   if [[ ! -d "/usr/local/Cellar/jq" ]]; then 
-    echo; echo "  Sorry, you need to add 'jq' via HomeBrew to run this script."; echo
+    echo; echo "  FloatVersion: you need to add 'jq' via HomeBrew to run this script."; echo
   fi
 fi
 
@@ -137,6 +137,7 @@ fi
   local StartString=
   local DeleteString=   
   local GTcompare=
+  local GT=
   local Verbose=
   local UseSortV=
   local NoSortVfallback=
@@ -272,8 +273,13 @@ fi
     printf "\n  FloatVersion: you need to install 'jq' to run this script. \n" >&2
   fi
 
-  # -gt test data is fairly controllable and always using full grep avoids error fails 
-  [[ $GTcompare ]] && GrepFull=1
+  # -gt test data is fairly controllable and always using full grep avoids error fails unless numeric is specified
+  if [[ $GTcompare ]]; then 
+    if [[ $SortNum ]] ; then 
+      [[ ! "$(command -v bc)" ]] && printf "\n  FloatVersion: you need to install 'bc' for standard numerical comparisons. \n" >&2
+      GrepFull=
+    else GrepFull=1 ; fi
+  fi
 
   # extract 
   if [[ $GrepFull ]]; then 
@@ -419,14 +425,18 @@ fi
 
   # output
   if [[ $GTcompare ]]; then
-    if [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]]; then 
-    [[ $Verbose ]] && { echo "true"; echo ;} ; return 0
+    if [[ $SortNum ]]; then 
+      # use 'bc' as 'sort -n' is not reliable when parity is technical eg 1.220 vs 1.22 shows incorrectly as true
+      [[ "$(bc -l <<< "${NumArrTemp[0]} > ${NumArrTemp[1]}")" == "1" ]] && GT=1
+    else
+      [[ "${NumArrTemp[0]}" == "${fvOutputArr[-1]}" ]] && [[ "${NumArrTemp[0]}" != "${NumArrTemp[1]}" ]] && GT=1
+    fi
+    if [[ $GT ]]; then  [[ $Verbose ]] && { echo "true"; echo ;} ; return 0
     else [[ $Verbose ]] && { echo "false"; echo ;} ; return 1
     fi
   elif [[ "${fvOutputArr[*]}" ]] && [[ $ShowAsStr || $ShowAll ]] && [[ ! $ShowAsCol ]]; then
     if [[ $SingleSpace ]]; then printf "%s " "${fvOutputArr[@]}"
-    else printf "%s  " "${fvOutputArr[@]}"
-    fi
+    else printf "%s  " "${fvOutputArr[@]}"; fi
     printf "\n"
   elif [[ "${fvOutputArr[*]}" ]] && [[ $ShowAsCol ]]; then
     printf "%s\n" "${fvOutputArr[@]}"

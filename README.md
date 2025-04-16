@@ -160,11 +160,13 @@ Up to Date
 
 FloatVersion will run in Bash or in Non-Bash shells.
 
-Requires up-to-date versions of Bash, Grep, JQ and Curl.
+Requires up-to-date versions of Bash, Grep, JQ, BC and Curl.
 
 - On MacOS install these via Homebrew
 
 Curl is needed from version 1.1 for the update checker on the full version only.
+
+BC is needed for standard numerical comparisons.
 
 ## Use as a Standalone
 
