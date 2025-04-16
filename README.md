@@ -2,7 +2,7 @@
 
 Point separated, multi-point separated or [semantic](http://semver.org/) versioned and versioned suffixed
 
-Use as full standalone, or compact embedded (~95 lines)
+Use as full standalone, or compact embedded (~98 lines)
 
 ```bash
 # full version using pipes (show latest)
@@ -29,8 +29,8 @@ floatversion -M 3 "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 
   -h | --help         show help 
   -V | --version      show version
-  -c | --col          show list as column instead of string  (-qc quiet)
-  -s | --space        use single spaced string for machine reading (-qs quiet)
+  -c | --col          show list as column instead of string  (-qc quieter errors)
+  -s | --space        use single spaced string for machine reading (-qs quieter errors)
   -r | --rev          show list in reverse order  
   -a | --all          show all extracted values, not just unique 
   -n | --num          sort by standard numbering, not versioning
@@ -43,9 +43,10 @@ floatversion -M 3 "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
   -RM [int]           Outputs the single lowest/earliest value in the list. With integer, as -M but 
                       reverses only the M filter set, not the list, eg. -M 3  > 3 2 1  -RM 3 > 1 2 3
                       also accepts '-r' to reverse a lowest set filter ...
-  -g | --gt           A > B, returns true/false eg. if fv -g "A B"; then .. (.nums or sem ver)  
-                      use -v for dev output, normally quiet and allows conditional testing.
+  -g | -qg | --gt     A > B, returns true/false eg. if fv -g "A B"; then .. (.nums or sem ver)  
+                      use -v for dev output, normally quiet and allows conditional testing (-qg quieter errors)
   -Q | --quiet        Quieten general error messages, as alternative to using '2>/dev/null'
+                      Use -qc | -qs | -qg  for reduced error output on full machine tests (no help notes)
   -v | --verbose      Show algorithm sequences (full version only) for problem output
        --sort-v       use sort -V (if present) in preference to the default jq methods
        --no-svb       no falling back to 'jq' if 'sort -V' is unavailable, show error instead
