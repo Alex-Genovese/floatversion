@@ -380,6 +380,29 @@ yes
 
 The input must resemble [semantic versioning](http://semver.org/) to _some_ extent, or decimal floating points.
 
-Plain integers are ignored. The version number must be _dot separated_. Only _one_ single _hyphenated_ suffix is permitted.
+- Plain integers are ignored. The version number must be _dot separated_.
 
-Some pre-filtering may be required.
+- Only _one_ single _hyphenated_ suffix is permitted.
+
+Some pre-filtering may sometimes be required.
+
+### Hyphens
+
+If the version number is embedded amongst multi-hyphens, then full hyphen removal may help.
+
+eg:
+
+```bash
+Data="d7fe3d6a0419667d2f8eff12796996328daa2d4f90cd9f87aa9371b362f987bf *ubuntu-24.04.2-desktop-amd64.iso
+faabcf33ae53976d2b8207a001ff32f4e5daae013505ac7188c9ea63988f8328 *ubuntu-24.04.3-desktop-amd64.iso"
+
+fv "${Data//-/}"
+
+24.04.2  24.04.3
+
+or
+
+tr -d '-' <<< "$Data" | fv
+
+24.04.2  24.04.3
+```

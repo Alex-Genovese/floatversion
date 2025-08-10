@@ -109,6 +109,9 @@ float_version_from_string ()  {
   Stdin and Pipes require the Standalone version.  Either or both input methods may be used.
   Only use 'fv' or short name links in PATH controlled situations. See readme for further notes.
 
+  If the version number is embedded amongst multi-hyphens, then full hyphen removal may help.
+  eg: tr -d '-' <<< \"\$Data\" | fv    See readme for further notes.
+
   License: MIT  Copyright (c) Alex Genovese
   Further Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
 
