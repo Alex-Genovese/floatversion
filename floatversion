@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# (c) Alex Genovese  https://github.com/Alex-Genovese/floatversion
 # (c) Alex Genovese  https://github.com/TuxVinyards/floatversion
 # License: MIT
 
@@ -113,7 +114,7 @@ float_version_from_string ()  {
   eg: tr -d '-' <<< \"\$Data\" | fv    See readme for further notes.
 
   License: MIT  Copyright (c) Alex Genovese
-  Further Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
+  Further Usage/Help/Details @ https://github.com/Alex-Genovese/floatversion
 
 "
 fi
@@ -159,10 +160,10 @@ fi
       -h|--help)
         show_help ; return 0 ;;
       -V|--version)
-        CurrentVersion="1.4.02"
+        CurrentVersion="1.4.03"
         printf "\n CurrentVersion: %s" "$CurrentVersion"
         printf "\n\n Checking for updates....   "
-        LatestVersion="$(floatversion -M "$(curl -sf --max-time 5 "https://github.com/TuxVinyards/floatversion/releases" | grep 's/tag')" 2>/dev/null)"
+        LatestVersion="$(floatversion -M "$(curl -sf --max-time 5 "https://github.com/Alex-Genovese/floatversion/releases" | grep 's/tag')" 2>/dev/null)"
         if [[ $LatestVersion ]]; then
           printf "LatestVersion: %s " "$LatestVersion"
           if floatversion --gt "$LatestVersion $CurrentVersion" 2>/dev/null; then printf " UPGRADEABLE "
@@ -170,7 +171,7 @@ fi
           fi
         else printf "connection/data not available"
         fi
-        printf "\n\n (c) Alex Genovese  https://github.com/TuxVinyards/floatversion \n\n"
+        printf "\n\n (c) Alex Genovese  https://github.com/Alex-Genovese/floatversion \n\n"
         return 0 ;;
       -Q|--quiet)
         HideErrors=1; shift ;;
@@ -465,7 +466,7 @@ fi
 
 floatversion ()  {
   # floatversion --options  "quoted-input-string-or-text-file"
-  # (c) Alex Genovese - version 1.02.02 (compact) - Usage/Help/Details @ https://github.com/TuxVinyards/floatversion
+  # (c) Alex Genovese - version 1.4.03 (compact) - Usage/Help/Details @ https://github.com/Alex-Genovese/floatversion
   local ShowAsStr= ; local ShowAsCol= ; local ShowMax= ; local ShowRev= ; local ShowAll= ; local SortNum= ; local GrepFull= ; local HideErrors=
   local InputText= ; local Nums= ; local NumsCount= ; local FilterString= ; local StartString= ; local DeleteString= ; local GTcompare=; local GT=
   local UseSortV= ; local NoSortVfallback= ; declare -a NumArrTemp ; declare -a NumArrSorted ; declare -a SelectArrTemp

@@ -288,7 +288,7 @@ CurrentVersion: 1.1.0
 
 Checking for updates....   LatestVersion: 1.1.0  Up-to-Date
 
-(c) Alex Genovese  https://github.com/TuxVinyards/floatversion
+(c) Alex Genovese  https://github.com/Alex-Genovese/floatversion
 ```
 
 ```bash
