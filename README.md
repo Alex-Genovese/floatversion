@@ -2,7 +2,17 @@
 
 Point separated, multi-point separated or [semantic](http://semver.org/) versioned and versioned suffixed
 
-Use as full standalone, or compact embedded (~98 lines)
+Use as full standalone, or compact embedded (~110 lines)
+
+-----
+
+DeepWiki:
+
+> Floatversion provides a robust interface for extracting, filtering, and comparing version numbers from unstructured text. It supports both standard numeric sorting and complex Semantic Versioning (SemVer) logic, including pre-release suffix handling
+
+Full structure details at [deepwiki.com/Alex-Genovese/floatversion](https://deepwiki.com/Alex-Genovese/floatversion/1-overview)
+
+-----
 
 ```bash
 # full version using pipes (show latest)
@@ -21,8 +31,8 @@ floatversion -M 3 "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 - Multiple Filters: include, exclude, starts with, reverse ...
 
 ```txt
-  floatversion --options  "quoted-input-source-or-data"
-  OR  data | floatversion --options "optional-additional"
+  floatversion --options  "quoted-input-source-or-data" (all options and values space separated)
+  OR piped stdout,  | floatversion --options "optional-additional"
 
   Extracts point separated numbers, or semantic version numbers with optional suffixes,
   and other common variations upon, from a given string or text-file
@@ -40,11 +50,14 @@ floatversion -M 3 "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
   -D | --delete       doesn't contain: -D  "string  string  string"
   -M | --max          Outputs the single highest/latest value in the list and with '-r' the lowest/earliest,
                       with integer shows top or bottom of total list eg. -M 3 is top 3 and -M 3 -r the bottom.
-  -RM [int]           Outputs the single lowest/earliest value in the list. With integer, as -M but
-                      reverses only the M filter set, not the list, eg. -M 3  > 3 2 1  -RM 3 > 1 2 3
-                      also accepts '-r' to reverse a lowest set filter ...
-  -g | -qg | --gt     A > B, returns true/false eg. if fv -g "A B"; then .. (.nums or sem ver)
-                      use -v for dev output, normally quiet and allows conditional testing (-qg quieter errors)
+  -RM [int]           Outputs the single lowest/earliest value in the list.
+                      With integer, as -M but NB reverses only the M filter set, not the whole input list
+                      eg. fv -RM 2 "4.2  3.1  2.5  1.7"  >  3.1  4.2
+  -R [int]            Outputs the lowest/earliest values in the list (use -r to reverse output order)
+                      eg. fv -r -R 2 "4.2  3.1  2.5  1.7"  >  1.7  2.5
+  -g | -qg | --gt     A > B, returns true/false eg. if fv -g "A B"; then .. (.nums or sem-ver, implies -f)
+                      use -v for dev output, normally quiet and allows conditional testing 
+                      Pre-sanitize input where possible. Use -qg to quieten the internal santizer's error output.
   -Q | --quiet        Quieten general error messages, as alternative to using '2>/dev/null'
                       Use -qc | -qs | -qg  for reduced error output on full machine tests (no help notes)
   -v | --verbose      Show algorithm sequences (full version only) for problem output
