@@ -240,27 +240,30 @@ ls | fv -f
 
 ## Embedding
 
-This method is suitable only for Bash scripts.
+This method is suitable only for Bash scripts:
 
-Single scripts can add the compact function in a simple copy and paste operation which is ready to go.
+Single scripts can add the compact function in a simple copy and paste operation which is ready to go
 
-In larger projects, the required extra space for the full function won't notice and you will have verbose mode ready built in.
+In larger projects, the required extra space for the full function won't notice and you will have verbose mode ready built in
 
-Either of the functions can be copied by simply opening the `floatversion` script in a text editor.
+Either of the functions can be copied by simply opening the `floatversion` script in a text editor
 
-The full version is named differently inside the standalone script to enable easy separation. When pasting the full version, it should be renamed to `floatversion`, the same as with the compact one.
+With release 1.6.01 the full function is named as 'floatversion' which enables keeping the compact, compactly named as 'fv'
+to run alongside, and to avoid problems with self-recursive calls
 
-Using the standard syntax `floatversion --options  "quoted-input-source"` will ensure that if a function is not present, the call will re-route to floatversion as a standalone dependency, also that any later usage changes or any code re-use won't have negative impact.
+The newer defaults also mean that calls scripted either as 'fv' or as 'floatversion' will now both work and that if embedding just the compact version, this may be renamed as floatversion, as required, without problems
 
-_Locale settings_ should be implemented as outlined in the `floatversion` script header.
+Having a standard command format of `fv | floatversion --options  "quoted-input-source"` ensures that any code call will auto-route to floatversion as a standalone dependency if later switching to this method, or if later switching to compact, or if wanting to re-use code elsewhere.
+
+_Locale settings_ should be implemented as outlined in the `floatversion` script header
 
 ### Output Array
 
-The standalone script can be set to output a transfer file which is easily mappable by most shells. When embedding, the array `${fvOutputArr[*]}` is by default present as global. See notes at start of script.
+The standalone script can be set to output a transfer file which is easily mappable by most shells. When embedding, the array `${fvOutputArr[*]}` is by default present as global. See notes at start of script
 
 ### Testing
 
-For testing the _compact_ function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any Bash script calls can then be temporarily prefixed by the control word `command` which will cause the function to re-route and will allow verbose output to be enabled.
+For testing the _compact_ function inside scripts, it is recommended that a $PATH version be installed on the development computer. Any Bash script calls can then be temporarily prefixed by the control word `command` which will cause the function to re-route and will allow verbose output to be enabled
 
 - Show _verbose_ algorithmics
 
