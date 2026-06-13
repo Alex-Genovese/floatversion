@@ -12,6 +12,8 @@ DeepWiki:
 
 Full structure details at [deepwiki.com/Alex-Genovese/floatversion](https://deepwiki.com/Alex-Genovese/floatversion/1-overview)
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Alex-Genovese/floatversion)
+
 -----
 
 ```bash
