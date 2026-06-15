@@ -184,6 +184,11 @@ Curl is needed from version 1.1 for the update checker on the full version only.
 
 BC is needed for standard numerical comparisons.
 
+Also see [DeepWiki](https://deepwiki.com/Alex-Genovese/floatversion/1.2-deployment-modes) deployment notes:
+
+<img width="877" height="330" alt="Screenshot 2026-06-15 at 12-53-57 Deployment Modes Alex-Genovese_floatversion DeepWiki" src="https://github.com/user-attachments/assets/a254d4dd-dbd5-48b0-ae5e-a6b0d7450a81" />
+
+
 ## Use as a Standalone
 
 The name `floatversion` was carefully checked for duplication before it was selected.
