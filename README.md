@@ -8,9 +8,9 @@ Use as full standalone, or compact embedded (~110 lines)
 
 DeepWiki:
 
-> Floatversion provides a robust interface for extracting, filtering, and comparing version numbers from unstructured text. It supports both standard numeric sorting and complex Semantic Versioning (SemVer) logic, including pre-release suffix handling
+> The floatversion system is designed as a robust version extraction and comparison pipeline .... The architecture prioritizes high-precision sorting of semantic versions (SemVer) ... from strings, files, or pipes ... The core strength of the architecture is its sorting flexibility. It defaults to a sophisticated jq filter that understands SemVer precedence, but can fall back to sort -V (version sort) or sort -n (numeric sort) for simple floating-point numbers.
 
-Full structure details at [deepwiki.com/Alex-Genovese/floatversion](https://deepwiki.com/Alex-Genovese/floatversion/1-overview)
+Full structural details at [deepwiki.com/Alex-Genovese/floatversion](https://deepwiki.com/Alex-Genovese/floatversion/2-core-architecture)
 
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Alex-Genovese/floatversion)
 
@@ -219,7 +219,9 @@ For Non-Bash, see [below](#use-in-different-shells)
 
 ### Symbolic links and aliases
 
-Only where a custom `PATH` has been exported within a script or where a custom path is head of the list
+Using these methods enables shorthand `fv` commands to go directly to the full version instead of the compact:
+
+Where a custom `PATH` has been exported within a script, or where a custom path is head of the `PATH` list
 
 ```bash
 cd /usr/share/my-prog
@@ -239,6 +241,8 @@ alias fv='floatversion'
 ls | fv -f
 5.13  6.8.0-56-generic  6.8.0-57-generic
 ```
+
+For working examples of `PATH` control and use of shorthanding fv links, see the [qqX project](https://github.com/qqxproject/qqX)
 
 ## Embedding
 
