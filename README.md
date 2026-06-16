@@ -246,7 +246,7 @@ ls | fv -f
 5.13  6.8.0-56-generic  6.8.0-57-generic
 ```
 
-For working examples of `PATH` control and use of shorthanding fv links, see the [qqX project](https://github.com/qqxproject/qqX)
+For working examples of `PATH` control and use of shorthanding fv links, see the [qqX project](https://github.com/qqxproject/qqX) and the included qqX file `path.notes.for.floatversion.deployment.md`
 
 ## Embedding
 
