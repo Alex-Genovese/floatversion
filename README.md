@@ -1,6 +1,6 @@
 # fv : extracts and sorts software release numbers
 
-Point separated, multi-point separated or [semantic](http://semver.org/) versioned and versioned suffixed
+Point separated, multi-point separated or semantic versioned and version-suffixed
 
 Use as full standalone, or compact embedded (~110 lines)
 
@@ -58,7 +58,7 @@ floatversion -M 3 "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
   -R [int]            Outputs the lowest/earliest values in the list (use -r to reverse output order)
                       eg. fv -r -R 2 "4.2  3.1  2.5  1.7"  >  1.7  2.5
   -g | -qg | --gt     A > B, returns true/false eg. if fv -g "A B"; then .. (.nums or sem-ver, implies -f)
-                      use -v for dev output, normally quiet and allows conditional testing 
+                      use -v for dev output, normally quiet and allows conditional testing
                       Pre-sanitize input where possible. Use -qg to quieten the internal santizer's error output.
   -Q | --quiet        Quieten general error messages, as alternative to using '2>/dev/null'
                       Use -qc | -qs | -qg  for reduced error output on full machine tests (no help notes)
@@ -79,7 +79,7 @@ floatversion -M 3 "$(curl -sf https://github.com/qemu/qemu/tags | grep 's/tag')"
 
 ## Superior sorting methods
 
-- Standard numeric or semantic ordering
+- Standard numeric or [semantic](http://semver.org/) ordering
 
 ```bash
 # standard
@@ -110,6 +110,14 @@ floatversion --max -f -S "1.2"  "non-pad-test.txt"
 tr ' ' '\n' <<< "1.2.3-rc2  1.2.3  1.22.3-rc1  1.22.3  1.2.0-beta2  1.2.3-beta1" | sort -Vr | head -n 1
 1.22.3-rc1
 ```
+
+- Puts dev, beta, rc, stable etc in the right order
+
+  Ver 1.7.00 adds standard life-cycle presets, principally to make sure 'dev' precedes 'beta' as in common with open source releases, and not in a,b,c,d order as previously
+
+  `1.2.3-foo.01  1.2.3-foo.02  1.2.3-random.01  1.2.3-dev.01  1.2.3-dev.02  1.2.3-alpha.01  1.2.3-beta.01  1.2.3-beta.02  1.2.3-rc.01  1.2.3-rc.02  1.2.3-stable.01  1.2.3-gold  1.2.3`
+
+  See [Wikipedia ...](https://en.wikipedia.org/wiki/Software_release_life_cycle#Stages_of_development)
 
 ## Easy to use single pass extraction and filter
 
