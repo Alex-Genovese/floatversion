@@ -91,8 +91,8 @@ show_help () {
                       eg. fv -RM 2 \"4.2  3.1  2.5  1.7\"  >  3.1  4.2
   -R [int]            Outputs the lowest/earliest values in the list (use -r to reverse output order)
                       eg. fv -r -R 2 \"4.2  3.1  2.5  1.7\"  >  1.7  2.5
-  -g | -qg | --gt     A > B, returns true/false eg. if fv -g \"A B\"; then .. (.nums or sem-ver, implies -f)
-                      use -v for dev output, normally quiet and allows conditional testing 
+  -g | -gt | --gt     A > B, returns true/false eg. if fv -gt \"A B\"; then .. (.nums or sem-ver, implies -f)
+                      use -v for dev output, normally quiet and allows conditional testing
                       Pre-sanitize input where possible. Use -qg to quieten the internal santizer's error output.
   -Q | --quiet        Quieten general error messages, as alternative to using '2>/dev/null'
                       Use -qc | -qs | -qg  for reduced error output on full machine tests (no help notes)
@@ -195,7 +195,7 @@ floatversion ()  {
       -h|--help)
         show_help ; return 0 ;;
       -V|--version)
-        CurrentVersion="1.7.00"
+        CurrentVersion="1.7.01"
         printf "\n CurrentVersion: %s" "$CurrentVersion"
         if [[ $(type -t 'fv') == "function" ]]; then
           printf "\n\n Checking for updates....   "
@@ -250,7 +250,7 @@ floatversion ()  {
       -R)
         ShowRev=1 ; LowMax=1 shift
         if [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]]; then LowMax="$1"; ShowMax=; shift; else LowMax="1"; fi ;;
-      -g|-qg|--gt)
+      -g|-gt|--gt|-qg)
         [[ $1 == "-qg" ]] && HideErrorHelp=1
         GTcompare=1; shift ;;
       *)
@@ -558,7 +558,7 @@ fv ()  {
       -M|--max)     ShowMax=1 ; shift ; [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; } ;;
       -RM)          ShowMax=1 ; RevMax=1 ; shift ; [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]] && { TopMax="$1"; ShowMax=; shift; } ;;
       -R)           ShowRev=1 ; LowMax=1 ; shift ; if [[ "$1" == [1-9] || "$1" == [1-9][0-9] ]]; then LowMax="$1"; ShowMax=; shift; else LowMax="1"; fi ;;
-      -g|-qg|--gt)  GTcompare=1 ; shift ;;
+      -g|-gt|--gt|-qg)  GTcompare=1 ; shift ;;
       *)  if [[ "$1" == '-'* ]]; then [[ ! $HideErrors ]] && printf "\n  FloatVersion:  '%s'  not recognised \n\n" "$1" >&2 ; return 1
           elif [[ $InputText ]]; then [[ ! $HideErrors ]] && printf "\n  FloatVersion:  QUOTED Input String or Text File Name Name not found \n\n" >&2 ; return 1
           else InputText="$1" ; shift ; fi ;;
