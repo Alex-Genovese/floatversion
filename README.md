@@ -231,9 +231,12 @@ For Non-Bash, see [below](#use-in-different-shells)
 
 ### Symbolic links and aliases
 
-Using these methods enables shorthand `fv` commands to go directly to the full version instead of the compact:
+Shorthand `fv` commands save typing and can go directly to the full version instead of the compact.
 
-Where a custom `PATH` has been exported within a script, or where a custom path is head of the `PATH` list
+Some distros have Access Control limitations so a 'link' file has been supplied which should work if placed next the full script,
+where a custom `PATH` has been exported within a script, or where a custom path is head of the `PATH` list
+
+Links may be created if wished, as below, but the fv file solution has proved to be more reliable
 
 ```bash
 cd /usr/share/my-prog
@@ -254,7 +257,7 @@ ls | fv -f
 5.13  6.8.0-56-generic  6.8.0-57-generic
 ```
 
-For working examples of `PATH` control and use of shorthanding fv links, see the [qqX project](https://github.com/qqxproject/qqX) and the included qqX file `path.notes.for.floatversion.deployment.md`
+For working examples of `PATH` control and use of fv shorthanding, see the [qqX project,](https://github.com/qqxproject/qqX) in particular the included qqX file `path.notes.for.floatversion.deployment.md`
 
 ## Embedding
 
